@@ -35,8 +35,6 @@ let currentUser = null;
 let userName = "";
 let userAvatar = "";
 let replyTo = null;
-
-/* TYPING TIMER */
 let typingTimer = null;
 
 /* ---------------- AUTH ---------------- */
@@ -46,17 +44,15 @@ onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   userName = user.displayName || user.email.split("@")[0];
 
-  const userRef = doc(db, "users", user.uid);
-  const snap = await getDoc(userRef);
-
+  const snap = await getDoc(doc(db, "users", user.uid));
   if (snap.exists()) {
     userAvatar = snap.data().avatar || "";
   }
 
-  // ONLINE STATUS
   await setDoc(doc(db, "status", user.uid), {
     online: true,
     typing: false,
+    name: userName,
     lastSeen: Date.now()
   }, { merge: true });
 
@@ -68,6 +64,7 @@ onAuthStateChanged(auth, async (user) => {
 window.sendMsg = async function () {
   const input = document.getElementById("chatText");
   const text = input.value.trim();
+
   if (!text || !currentUser) return;
 
   await addDoc(collection(db, "messages"), {
@@ -76,12 +73,12 @@ window.sendMsg = async function () {
     name: userName,
     avatar: userAvatar,
     time: serverTimestamp(),
-    reply: replyTo
+    reply: replyTo,
+    seen: false
   });
 
   input.value = "";
   cancelReply();
-
   setTyping(false);
 };
 
@@ -131,7 +128,7 @@ function markSeen(id) {
   });
 }
 
-/* ---------------- TYPING SYSTEM (🔥 NEW) ---------------- */
+/* ---------------- TYPING ---------------- */
 const input = document.getElementById("chatText");
 
 input.addEventListener("input", () => {
@@ -140,10 +137,9 @@ input.addEventListener("input", () => {
   setTyping(true);
 
   clearTimeout(typingTimer);
-
   typingTimer = setTimeout(() => {
     setTyping(false);
-  }, 1200);
+  }, 1000);
 });
 
 async function setTyping(state) {
@@ -151,11 +147,12 @@ async function setTyping(state) {
 
   await setDoc(doc(db, "status", currentUser.uid), {
     typing: state,
-    online: true
+    online: true,
+    name: userName
   }, { merge: true });
 }
 
-/* ---------------- LISTEN TYPING (REALTIME) ---------------- */
+/* ---------------- LISTEN TYPING ---------------- */
 function listenTyping() {
   const statusRef = collection(db, "status");
 
@@ -163,26 +160,49 @@ function listenTyping() {
     const box = document.getElementById("typingBox");
     if (!box) return;
 
-    let usersTyping = [];
+    let users = [];
 
     snap.forEach((d) => {
       const u = d.data();
 
       if (u.typing && d.id !== currentUser.uid) {
-        usersTyping.push(u.name || "User");
+        users.push(u.name || "User");
       }
     });
 
-    if (usersTyping.length > 0) {
-      box.style.display = "block";
-      box.innerText = `${usersTyping.join(", ")} yozmoqda...`;
-    } else {
-      box.style.display = "none";
-    }
+    box.style.display = users.length ? "block" : "none";
+    box.innerText = users.length ? `${users.join(", ")} typing...` : "";
   });
 }
 
-/* ---------------- CHAT REALTIME ---------------- */
+/* ---------------- USERS LIST ---------------- */
+function listenUsers() {
+  const statusRef = collection(db, "status");
+
+  onSnapshot(statusRef, (snap) => {
+    const list = document.getElementById("userList");
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    snap.forEach((d) => {
+      const u = d.data();
+
+      const div = document.createElement("div");
+      div.className = "user";
+
+      div.innerHTML = `
+        <span class="dot ${u.online ? "online" : "offline"}"></span>
+        <b>${u.name || (d.id === currentUser.uid ? "You" : "User")}</b>
+        ${u.typing ? " ✍" : ""}
+      `;
+
+      list.appendChild(div);
+    });
+  });
+}
+
+/* ---------------- CHAT ---------------- */
 const q = query(collection(db, "messages"), orderBy("time", "asc"));
 
 onSnapshot(q, (snap) => {
@@ -238,7 +258,7 @@ onSnapshot(q, (snap) => {
 
     div.addEventListener("click", (e) => {
       e.stopPropagation();
-      document.querySelectorAll(".msgMenu").forEach(m => m.style.display = "none");
+      document.querySelectorAll(".msgMenu").forEach(el => el.style.display = "none");
       div.querySelector(".msgMenu").style.display = "flex";
     });
 
@@ -247,41 +267,13 @@ onSnapshot(q, (snap) => {
   });
 });
 
-/* ---------------- USERS LIST ---------------- */
-function listenUsers() {
-  const statusRef = collection(db, "status");
-
-  onSnapshot(statusRef, (snap) => {
-    const list = document.getElementById("userList");
-    if (!list) return;
-
-    list.innerHTML = "";
-
-    snap.forEach((d) => {
-      const u = d.data();
-
-      const div = document.createElement("div");
-      div.className = "user";
-
-      div.innerHTML = `
-        <span class="dot ${u.online ? "online" : "offline"}"></span>
-        <b>${u.name || (d.id === currentUser.uid ? "You" : "User")}</b>
-      `;
-
-      list.appendChild(div);
-    });
-  });
-}
-
-/* ---------------- CLOSE MENU ---------------- */
-document.addEventListener("click", () => {
-  document.querySelectorAll(".msgMenu").forEach(el => {
-    el.style.display = "none";
-  });
-});
-
 /* ---------------- SCROLL ---------------- */
 window.scrollToMsg = function (id) {
   const el = document.getElementById(id);
   if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
 };
+
+/* CLOSE MENU */
+document.addEventListener("click", () => {
+  document.querySelectorAll(".msgMenu").forEach(el => el.style.display = "none");
+});
