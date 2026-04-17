@@ -8,7 +8,6 @@
 </head>
 <body>
 
-<!-- CHECKBOX (control) -->
 <input type="checkbox" id="openSidebarMenu" class="openSidebarMenu">
 
 <!-- HEADER -->
@@ -35,29 +34,45 @@
 <!-- MAIN -->
 <div class="main">
 
-
-<!-- CHAT -->
 <div class="chatBox">
 
+  <!-- HEADER -->
   <div class="chatHeader">
-    💬 Global Chat
+    <span>💬 Global Chat</span>
+    <button id="userToggleBtn">👥 UserList</button>
   </div>
-<div id="replyBox" style="display:none">
-  <span id="replyText"></span>
-  <button onclick="cancelReply()">✖</button>
-</div>
-   <div id="chatList" class="chatList"></div>
-<div id="replyBox">
-  <div id="replyText"></div>
-  <button onclick="cancelReply()">❌</button>
-</div>
+
+  <!-- USER PANEL -->
+  <div id="userPanel" class="userPanel">
+    <div class="userPanelHeader">
+      <span>👥 Online Users</span>
+      <button onclick="closeUserList()">✖</button>
+    </div>
+    <div id="userList" class="userList"></div>
+  </div>
+
+  <!-- TYPING -->
+  <div id="typingBox" class="typing" style="display:none"></div>
+
+  <!-- REPLY (FAKAT BITTA) -->
+  <div id="replyBox" style="display:none">
+    <span id="replyText"></span>
+    <button onclick="cancelReply()">✖</button>
+  </div>
+
+  <!-- CHAT -->
+  <div id="chatList" class="chatList"></div>
+
+  <!-- INPUT -->
   <div class="chatInput">
     <input id="chatText" placeholder="Message...">
     <button onclick="sendMsg()">Send</button>
   </div>
 
 </div>
+
 </div>
+
 <script type="module" src="./js/home.js"></script>
 </body>
 </html>

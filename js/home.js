@@ -277,3 +277,12 @@ window.scrollToMsg = function (id) {
 document.addEventListener("click", () => {
   document.querySelectorAll(".msgMenu").forEach(el => el.style.display = "none");
 });
+// OPEN USER LIST
+document.getElementById("userToggleBtn").addEventListener("click", () => {
+  document.getElementById("userPanel").classList.add("active");
+});
+
+// CLOSE USER LIST
+window.closeUserList = function () {
+  document.getElementById("userPanel").classList.remove("active");
+};
