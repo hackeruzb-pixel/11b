@@ -209,7 +209,7 @@ onSnapshot(q, (snap) => {
 
     div.innerHTML = `
       <div class="msgHeader">
-        <img src="${m.avatar || './img/dowload.png'}">
+        <img src="${m.avatar || './img/download.png'}">
         <b>${m.name}</b>
       </div>
 
