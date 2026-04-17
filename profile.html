@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile Pro</title>
+
+<link rel="stylesheet" href="./css/profile.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="card">
+
+  <!-- LOGOUT -->
+<button class="back" onclick="goBack()">⬅ Back</button> 
+
+  <!-- AVATAR -->
+  <div class="avatar-box">
+    <img id="avatar" src="./img/download.png">
+
+    <label class="upload-btn">
+      <i class="material-icons">photo_camera</i>
+      <input type="file" id="avatarInput" accept="image/*">
+    </label>
+  </div>
+
+  <!-- NAME -->
+  <h2 id="nameText">Loading...</h2>
+
+  <p class="info" id="infoText">User info loading...</p>
+
+  <!-- BUTTONS -->
+  <button class="btn">Follow</button>
+
+</div>
+
+<script type="module" src="./js/profile.js"></script>
+</body>
+</html>

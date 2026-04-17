@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home</title>
+<link rel="stylesheet" href="./css/home.css">
+</head>
+<body>
+
+<!-- CHECKBOX (control) -->
+<input type="checkbox" id="openSidebarMenu" class="openSidebarMenu">
+
+<!-- HEADER -->
+<div class="header">
+  <label for="openSidebarMenu" class="sidebarIconToggle">
+    <div class="spinner diagonal part-1"></div>
+    <div class="spinner horizontal"></div>
+    <div class="spinner diagonal part-2"></div>
+  </label>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sidebarMenu">
+  <ul class="sidebarMenuInner">
+    <li>DJ <span>Menu</span></li>
+    <li><a href="#">Home</a></li>
+    <li><a href="./profile.html">Profile</a></li>
+    <li><a href="stoping.html">Music</a></li>
+    <li><a href="./premium.html">Premium</a></li>
+    <li><a href="./settings.html">Settings</a></li>
+  </ul>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+
+<!-- CHAT -->
+<div class="chatBox">
+
+  <div class="chatHeader">
+    💬 Global Chat
+  </div>
+<div id="userList" class="userList"></div>
+
+<div id="replyBox" style="display:none">
+  <span id="replyText"></span>
+  <button onclick="cancelReply()">✖</button>
+</div>
+  <div id="chatList" class="chatList"></div>
+<div id="replyBox">
+  <div id="replyText"></div>
+  <button onclick="cancelReply()">❌</button>
+</div>
+  <div class="chatInput">
+    <input id="chatText" placeholder="Message...">
+    <button onclick="sendMsg()">Send</button>
+  </div>
+
+</div>
+</div>
+<script type="module" src="./js/home.js"></script>
+</body>
+</html>
