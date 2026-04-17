@@ -11,8 +11,10 @@ body{
   justify-content:center;
   align-items:center;
   background:linear-gradient(135deg,#667eea,#764ba2);
+  padding:15px;
 }
 
+/* BOX */
 .box{
   width:350px;
   background:#fff;
@@ -30,6 +32,7 @@ body{
 
 h2{
   margin-bottom:20px;
+  font-size:24px;
 }
 
 input{
@@ -39,11 +42,13 @@ input{
   border-radius:10px;
   border:1px solid #ccc;
   transition:0.3s;
+  font-size:15px;
 }
 
 input:focus{
   border-color:#667eea;
   box-shadow:0 0 5px #667eea;
+  outline:none;
 }
 
 button{
@@ -75,9 +80,43 @@ p{
   margin-top:15px;
 }
 
-#reset{
-  display:block;
-  margin-top:10px;
-  color:#667eea;
-  cursor:pointer;
+/* ===== RESPONSIVE ===== */
+
+/* tablet */
+@media screen and (max-width: 768px){
+  .box{
+    width:90%;
+    padding:25px;
+  }
+
+  h2{
+    font-size:22px;
+  }
+}
+
+/* phone */
+@media screen and (max-width: 480px){
+  body{
+    padding:10px;
+  }
+
+  .box{
+    width:100%;
+    border-radius:12px;
+    padding:20px;
+  }
+
+  h2{
+    font-size:20px;
+  }
+
+  input{
+    padding:10px;
+    font-size:14px;
+  }
+
+  button{
+    padding:10px;
+    font-size:15px;
+  }
 }
