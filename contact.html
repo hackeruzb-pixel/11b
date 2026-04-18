@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0a0a0a;
+  color:white;
+}
+
+.container{
+  max-width:500px;
+  margin:80px auto;
+  padding:20px;
+  background:rgba(255,255,255,0.05);
+  border-radius:15px;
+  backdrop-filter: blur(10px);
+  box-shadow:0 0 20px rgba(0,255,255,0.2);
+}
+
+h1{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+input, textarea{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border:none;
+  border-radius:8px;
+  outline:none;
+  background:#111;
+  color:white;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:#00ffff;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  background:#00cccc;
+}
+
+.links{
+  margin-top:20px;
+  text-align:center;
+}
+
+.links a{
+  display:inline-block;
+  margin:5px;
+  padding:10px 15px;
+  background:#111;
+  color:#0ff;
+  border-radius:8px;
+  text-decoration:none;
+  transition:0.3s;
+}
+
+.links a:hover{
+  background:#0ff;
+  color:black;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+  <h1>📩 Contact Me</h1>
+
+  <form onsubmit="sendMessage(event)">
+    <input type="text" placeholder="Ismingiz" required>
+    <input type="email" placeholder="Emailingiz" required>
+    <textarea rows="5" placeholder="Xabar yozing..." required></textarea>
+    <button type="submit">Yuborish</button>
+  </form>
+
+  <div class="links">
+    <a href="mailto:youremail@gmail.com">📧 Email</a>
+    <a href="https://t.me/yourusername" target="_blank">📱 Telegram</a>
+  </div>
+</div>
+
+<script>
+function sendMessage(e){
+  e.preventDefault();
+  alert("Xabar yuborildi ✅ (hozircha fake 😄)");
+}
+</script>
+
+</body>
+</html>
