@@ -3,27 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact</title>
+<title>Contact PRO</title>
+
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <style>
-body{
+*{
   margin:0;
-  font-family:Arial, sans-serif;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:Arial;
   background:#0a0a0a;
   color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
 
 .container{
-  max-width:500px;
-  margin:80px auto;
-  padding:20px;
-  background:rgba(255,255,255,0.05);
+  width:100%;
+  max-width:450px;
+  padding:25px;
   border-radius:15px;
-  backdrop-filter: blur(10px);
-  box-shadow:0 0 20px rgba(0,255,255,0.2);
+  background:rgba(255,255,255,0.05);
+  box-shadow:0 0 25px rgba(0,255,255,0.2);
+  backdrop-filter:blur(10px);
 }
 
-h1{
+h2{
   text-align:center;
   margin-bottom:20px;
 }
@@ -34,9 +46,14 @@ input, textarea{
   margin:10px 0;
   border:none;
   border-radius:8px;
-  outline:none;
   background:#111;
   color:white;
+  font-size:14px;
+}
+
+textarea{
+  resize:none;
+  height:120px;
 }
 
 button{
@@ -55,25 +72,10 @@ button:hover{
   background:#00cccc;
 }
 
-.links{
-  margin-top:20px;
+.status{
+  margin-top:10px;
   text-align:center;
-}
-
-.links a{
-  display:inline-block;
-  margin:5px;
-  padding:10px 15px;
-  background:#111;
-  color:#0ff;
-  border-radius:8px;
-  text-decoration:none;
-  transition:0.3s;
-}
-
-.links a:hover{
-  background:#0ff;
-  color:black;
+  font-size:14px;
 }
 </style>
 
@@ -81,27 +83,73 @@ button:hover{
 <body>
 
 <div class="container">
-  <h1>📩 Contact Me</h1>
+  <h2>📩 Contact Me</h2>
 
-  <form onsubmit="sendMessage(event)">
-    <input type="text" placeholder="Ismingiz" required>
-    <input type="email" placeholder="Emailingiz" required>
-    <textarea rows="5" placeholder="Xabar yozing..." required></textarea>
+  <form id="contactForm">
+    <input type="text" id="name" placeholder="Ismingiz" required>
+    <input type="email" id="email" placeholder="Emailingiz" required>
+    <textarea id="message" placeholder="Xabar yozing..." required></textarea>
     <button type="submit">Yuborish</button>
   </form>
 
-  <div class="links">
-    <a href="mailto:youremail@gmail.com">📧 Email</a>
-    <a href="https://t.me/yourusername" target="_blank">📱 Telegram</a>
-  </div>
+  <div class="status" id="status"></div>
 </div>
 
 <script>
-function sendMessage(e){
+// 🔥 EMAILJS INIT
+(function(){
+  emailjs.init("YOUR_PUBLIC_KEY");
+})();
+
+const form = document.getElementById("contactForm");
+const statusText = document.getElementById("status");
+
+form.addEventListener("submit", function(e){
   e.preventDefault();
-  alert("Xabar yuborildi ✅ (hozircha fake 😄)");
-}
+
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const message = document.getElementById("message").value;
+
+  statusText.innerHTML = "⏳ Yuborilmoqda...";
+
+  // 1️⃣ EMAILJS
+  emailjs.send("service_330emza", "template_ud4xsy6", {
+    name: name,
+    email: email,
+    message: message
+  })
+  .then(function(){
+    console.log("Email yuborildi");
+  }, function(error){
+    console.log("Email error:", error);
+  });
+
+  // 2️⃣ TELEGRAM
+  const botToken = "YOUR_BOT_TOKEN";
+  const chatId = "YOUR_CHAT_ID";
+
+  const text = `📩 Yangi xabar!\n\n👤 Ism: ${name}\n📧 Email: ${email}\n💬 Xabar: ${message}`;
+
+  fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: text
+    })
+  })
+  .then(res => res.json())
+  .then(data => console.log("Telegram yuborildi", data))
+  .catch(err => console.log("Telegram error", err));
+
+  // ✅ UI
+  statusText.innerHTML = "✅ Xabar yuborildi!";
+  form.reset();
+});
 </script>
 
 </body>
-</html>
+</html> 
