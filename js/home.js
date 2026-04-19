@@ -37,10 +37,6 @@ let userAvatar = "";
 let replyTo = null;
 let typingTimer = null;
 
-/* 🔥 PRIVATE STATE */
-let privateUser = null;
-let privateUserName = "";
-
 /* ---------------- AUTH ---------------- */
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
@@ -64,11 +60,6 @@ onAuthStateChanged(auth, async (user) => {
   listenTyping();
 });
 
-/* ---------------- CHAT ID ---------------- */
-function getChatId(uid1, uid2) {
-  return uid1 < uid2 ? uid1 + "_" + uid2 : uid2 + "_" + uid1;
-}
-
 /* ---------------- SEND MESSAGE ---------------- */
 window.sendMsg = async function () {
   const input = document.getElementById("chatText");
@@ -76,85 +67,19 @@ window.sendMsg = async function () {
 
   if (!text || !currentUser) return;
 
-  if (privateUser) {
-    const chatId = getChatId(currentUser.uid, privateUser);
-
-    await addDoc(collection(db, "privateChats", chatId, "messages"), {
-      text,
-      uid: currentUser.uid,
-      name: userName,
-      avatar: userAvatar,
-      time: serverTimestamp()
-    });
-
-  } else {
-    await addDoc(collection(db, "messages"), {
-      text,
-      uid: currentUser.uid,
-      name: userName,
-      avatar: userAvatar,
-      time: serverTimestamp(),
-      reply: replyTo,
-      seen: false
-    });
-  }
+  await addDoc(collection(db, "messages"), {
+    text,
+    uid: currentUser.uid,
+    name: userName,
+    avatar: userAvatar,
+    time: serverTimestamp(),
+    reply: replyTo,
+    seen: false
+  });
 
   input.value = "";
   cancelReply();
   setTyping(false);
-};
-
-/* ---------------- PRIVATE CHAT OPEN ---------------- */
-window.openPrivateChat = function(uid, name) {
-  privateUser = uid;
-  privateUserName = name;
-
-  document.querySelector(".chatHeader span").innerText = `💬 ${name}`;
-
-  listenPrivateMessages();
-};
-
-/* ---------------- PRIVATE LISTENER ---------------- */
-function listenPrivateMessages() {
-  if (!privateUser) return;
-
-  const chatId = getChatId(currentUser.uid, privateUser);
-
-  const q = query(
-    collection(db, "privateChats", chatId, "messages"),
-    orderBy("time", "asc")
-  );
-
-  onSnapshot(q, (snap) => {
-    const chat = document.getElementById("chatList");
-    chat.innerHTML = "";
-
-    snap.forEach((d) => {
-      const m = d.data();
-
-      const div = document.createElement("div");
-      div.className = "msg";
-
-      if (m.uid === currentUser.uid) div.classList.add("me");
-
-      div.innerHTML = `
-        <div class="msgHeader">
-          <img src="${m.avatar || './img/download.png'}">
-          <b>${m.name}</b>
-        </div>
-        <div class="msgText">${m.text}</div>
-      `;
-
-      chat.appendChild(div);
-    });
-  });
-}
-
-/* ---------------- BACK GLOBAL ---------------- */
-window.backToGlobal = function() {
-  privateUser = null;
-  document.querySelector(".chatHeader span").innerText = "💬 Global Chat";
-  location.reload();
 };
 
 /* ---------------- DELETE ---------------- */
@@ -193,6 +118,15 @@ window.cancelReply = function () {
   const box = document.getElementById("replyBox");
   if (box) box.style.display = "none";
 };
+
+/* ---------------- SEEN ---------------- */
+function markSeen(id) {
+  if (!currentUser) return;
+
+  updateDoc(doc(db, "messages", id), {
+    seen: true
+  });
+}
 
 /* ---------------- TYPING ---------------- */
 const input = document.getElementById("chatText");
@@ -263,21 +197,15 @@ function listenUsers() {
         ${u.typing ? " ✍" : ""}
       `;
 
-      div.addEventListener("click", () => {
-        openPrivateChat(d.id, u.name);
-      });
-
       list.appendChild(div);
     });
   });
 }
 
-/* ---------------- GLOBAL CHAT ---------------- */
+/* ---------------- CHAT ---------------- */
 const q = query(collection(db, "messages"), orderBy("time", "asc"));
 
 onSnapshot(q, (snap) => {
-  if (privateUser) return; // ❗ private bo‘lsa globalni to‘xtatadi
-
   const chat = document.getElementById("chatList");
   chat.innerHTML = "";
 
@@ -286,26 +214,75 @@ onSnapshot(q, (snap) => {
 
     const div = document.createElement("div");
     div.className = "msg";
+    div.id = d.id;
 
     if (m.uid === currentUser?.uid) div.classList.add("me");
+
+    let replyHTML = "";
+    if (m.reply) {
+      replyHTML = `
+        <div class="replyBox" onclick="scrollToMsg('${m.reply.id}')">
+          ↩ <b>${m.reply.name}</b>: ${m.reply.text}
+        </div>
+      `;
+    }
 
     div.innerHTML = `
       <div class="msgHeader">
         <img src="${m.avatar || './img/download.png'}">
         <b>${m.name}</b>
       </div>
+
+      ${replyHTML}
+
       <div class="msgText">${m.text}</div>
+
+      <div class="msgFooter">
+        ${m.seen ? "✔✔ seen" : ""}
+      </div>
+
+      <div class="msgMenu">
+        ${
+          m.uid === currentUser?.uid
+            ? `
+              <button onclick="replyMsg('${d.id}','${m.text}','${m.name}')">↩ Reply</button>
+              <button onclick="editMsg('${d.id}','${m.uid}','${m.text}')">✏️ Edit</button>
+              <button onclick="deleteMsg('${d.id}','${m.uid}')">🗑 Delete</button>
+            `
+            : `
+              <button onclick="replyMsg('${d.id}','${m.text}','${m.name}')">↩ Reply</button>
+            `
+        }
+      </div>
     `;
 
+    div.addEventListener("click", (e) => {
+      e.stopPropagation();
+      document.querySelectorAll(".msgMenu").forEach(el => el.style.display = "none");
+      div.querySelector(".msgMenu").style.display = "flex";
+    });
+
+    markSeen(d.id);
     chat.appendChild(div);
   });
 });
 
-/* UI */
+/* ---------------- SCROLL ---------------- */
+window.scrollToMsg = function (id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+};
+
+/* CLOSE MENU */
+document.addEventListener("click", () => {
+  document.querySelectorAll(".msgMenu").forEach(el => el.style.display = "none");
+});
+// OPEN USER LIST
 document.getElementById("userToggleBtn").addEventListener("click", () => {
   document.getElementById("userPanel").classList.add("active");
 });
 
+// CLOSE USER LIST
 window.closeUserList = function () {
   document.getElementById("userPanel").classList.remove("active");
 };
