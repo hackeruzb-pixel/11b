@@ -3,37 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login</title>
+<title>Admin Dashboard</title>
 <link rel="stylesheet" href="./css/admin.css">
 </head>
 <body>
 
 <div class="bg"></div>
 
+<!-- LOGIN -->
 <div id="loginBox" class="loginBox">
-
-  <div class="glassCard">
-
-    <div class="icon">🔐</div>
-
-    <h1>Admin Dashboard</h1>
-    <p>Secure access required</p>
+  <div class="loginCard">
+    <h2>🔐 Admin Login</h2>
+    <p>Secure dashboard access</p>
 
     <input type="password" id="adminPass" placeholder="Enter password">
+    <button onclick="checkPass()">Login</button>
+  </div>
+</div>
 
-    <button onclick="checkPass()">Sign in</button>
+<!-- DASHBOARD -->
+<div id="adminPanel" class="hidden dashboard">
 
-    <div class="footerText">
-      Protected system • Unauthorized access denied
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>⚡ Admin</h2>
+
+    <button onclick="showTab('users')">👥 Users</button>
+    <button onclick="showTab('chat')">💬 Chat</button>
+    <button onclick="clearChat()">🗑 Clear Chat</button>
+    <button onclick="goBack()">⬅ Exit</button>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="topbar">
+      <h3 id="title">Dashboard</h3>
+      <span id="stats">Loading...</span>
+    </div>
+
+    <!-- USERS -->
+    <div id="usersTab" class="tab">
+      <h3>Users</h3>
+      <div id="userList"></div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="chatTab" class="tab hidden">
+      <h3>Chat Control</h3>
+      <div id="chatInfo">Manage messages</div>
     </div>
 
   </div>
 
-</div>
-
-<!-- PANEL -->
-<div id="adminPanel" class="hidden">
-  <h2>Admin Panel</h2>
 </div>
 
 <script type="module" src="./js/admin.js"></script>
