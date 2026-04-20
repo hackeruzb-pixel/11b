@@ -3,40 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Secure Admin Access</title>
+<title>Admin Access</title>
 <link rel="stylesheet" href="./css/admin.css">
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="loginBox" class="loginBox">
 
-  <div class="fingerCard">
+  <div class="card">
 
-    <h2>🔐 Secure Access</h2>
-    <p>Place fingerprint to continue</p>
+    <div class="logo">🔐 Admin System</div>
+    <p class="subtitle">Secure dashboard access</p>
 
-    <!-- FINGERPRINT ICON -->
-    <div class="fingerprint" onclick="scanFingerprint()">
-      <div class="scanLine"></div>
-    </div>
-
-    <button onclick="scanFingerprint()">Scan Fingerprint</button>
-
-    <input type="password" id="adminPass" placeholder="or enter key manually">
+    <input type="password" id="adminPass" placeholder="Enter admin password">
 
     <button onclick="checkPass()">Login</button>
 
-    <div class="hint">SYSTEM: HIGH SECURITY MODE</div>
+    <div class="hint">Protected system • Authorized users only</div>
 
   </div>
 
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- PANEL -->
 <div id="adminPanel" class="hidden">
-  <h2>Admin Panel</h2>
-  <button onclick="goBack()">⬅ Back</button>
+
+  <div class="topBar">
+    <button onclick="goBack()">⬅ Back</button>
+    <h2>Admin Dashboard</h2>
+  </div>
+
+  <div class="stats">
+    👥 Total Users: <span id="totalUsers">0</span>
+  </div>
+
+  <button class="danger" onclick="clearChat()">🗑 Clear Chat</button>
+
+  <div id="userList" class="userList"></div>
+
 </div>
 
 <script type="module" src="./js/admin.js"></script>
