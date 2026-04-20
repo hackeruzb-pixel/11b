@@ -1,72 +1,80 @@
 body {
   margin: 0;
   font-family: Arial;
-  background: #0b1220;
-  color: white;
+  background: #f5f7fb;
+  color: #111;
 }
 
 /* LOGIN */
 .loginBox {
   height: 100vh;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-.loginBox input {
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  margin: 10px;
-  width: 200px;
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  text-align: center;
 }
 
-.loginBox button {
-  padding: 10px 20px;
+input {
+  width: 200px;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 15px;
   border: none;
   border-radius: 8px;
-  background: #4f46e5;
+  cursor: pointer;
+  background: #2563eb;
   color: white;
 }
 
 /* PANEL */
-.adminPanel {
-  padding: 20px;
-}
-
 .hidden {
   display: none;
 }
 
-/* TOP */
+.adminPanel {
+  padding: 20px;
+}
+
+/* TOPBAR */
 .topBar {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  background: #111827;
-  padding: 10px;
-  border-radius: 10px;
+  align-items: center;
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
 
-/* BUTTONS */
-button {
-  cursor: pointer;
-  margin: 5px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: none;
+/* STATS */
+.stats {
+  margin: 15px 0;
+  font-size: 18px;
 }
 
+/* BUTTON */
 .danger {
   background: #ef4444;
-  color: white;
 }
 
 /* USER CARD */
 .user {
-  background: #1f2937;
-  padding: 10px;
+  background: white;
+  padding: 15px;
   margin-top: 10px;
-  border-radius: 10px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
