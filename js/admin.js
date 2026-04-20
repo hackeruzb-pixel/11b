@@ -19,6 +19,7 @@ const db = getFirestore(app);
 
 /* PASSWORD */
 const PASSWORD = "231008xm";
+const PASSWORD = "231008xm";
 
 window.checkPass = function () {
   const pass = document.getElementById("adminPass").value;
