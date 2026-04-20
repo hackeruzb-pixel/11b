@@ -274,48 +274,62 @@ onSnapshot(q, (snap) => {
         <b>${m.name}</b>
       </div>
 
-      ${m.pinned ? "<div class='pin'>📌 Pinned</div>" : ""}
-
-      ${m.reply ? `<div class="replyBox">↩ ${m.reply.name}: ${m.reply.text}</div>` : ""}
-
       <div class="msgText">${m.text}</div>
 
       <div class="msgFooter">
         ${m.seen ? "✔✔ seen" : ""}
       </div>
 
-      <div class="msgMenu">
-        <button onclick="replyMsg('${d.id}','${m.text}','${m.name}')">↩</button>
-
+      <div class="msgMenu" style="display:none;">
+        <button class="replyBtn">↩ Reply</button>
         ${
           (m.uid === currentUser?.uid || isAdmin)
-            ? `<button onclick="editMsg('${d.id}','${m.uid}','${m.text}')">✏️</button>
-               <button onclick="deleteMsg('${d.id}','${m.uid}')">🗑</button>`
-            : ""
-        }
-
-        ${
-          isAdmin
             ? `
-              <button onclick="pinMsg('${d.id}')">📌</button>
-              <button onclick="banUser('${m.uid}')">🚫</button>
-              <button onclick="muteUser('${m.uid}')">🔇</button>
+              <button class="editBtn">✏️ Edit</button>
+              <button class="deleteBtn">🗑 Delete</button>
             `
             : ""
         }
       </div>
     `;
 
-    chat.appendChild(div);
+    // 🔥 BUTTON EVENTS (MUHIM)
+    const replyBtn = div.querySelector(".replyBtn");
+    const editBtn = div.querySelector(".editBtn");
+    const deleteBtn = div.querySelector(".deleteBtn");
+
+    if (replyBtn) {
+      replyBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        window.replyMsg(d.id, m.text, m.name);
+      });
+    }
+
+    if (editBtn) {
+      editBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        window.editMsg(d.id, m.uid, m.text);
+      });
+    }
+
+    if (deleteBtn) {
+      deleteBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        window.deleteMsg(d.id, m.uid);
+      });
+    }
+
+    // MENU OPEN
+    div.addEventListener("click", (e) => {
+      e.stopPropagation();
+      document.querySelectorAll(".msgMenu").forEach(el => el.style.display = "none");
+      div.querySelector(".msgMenu").style.display = "flex";
+    });
+
     markSeen(d.id);
+    chat.appendChild(div);
   });
 });
-
-/* ---------------- SCROLL ---------------- */
-window.scrollToMsg = function (id) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-};
 
 /* CLOSE MENU */
 document.addEventListener("click", () => {
