@@ -10,11 +10,6 @@ import {
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
 /* FIREBASE */
 const app = initializeApp({
   apiKey: "AIzaSyAW4JRvs_gwVHM1R8NJqfpB_toYIIZjWl0",
@@ -23,29 +18,29 @@ const app = initializeApp({
 });
 
 const db = getFirestore(app);
-const auth = getAuth(app);
 
-let isAdmin = false;
+/* PASSWORD */
+const PASSWORD = "231008xm";
 
-/* AUTH CHECK */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return location.href = "login.html";
+/* ---------------- LOGIN CHECK ---------------- */
+window.checkPass = function () {
+  const pass = document.getElementById("adminPass").value;
 
-  const snap = await getDoc(doc(db, "users", user.uid));
-  if (snap.exists()) {
-    isAdmin = snap.data().role === "admin";
+  if (pass === PASSWORD) {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("adminPanel").classList.remove("hidden");
+    loadUsers();
+  } else {
+    alert("❌ Wrong password!");
   }
+};
 
-  if (!isAdmin) {
-    alert("Access denied!");
-    location.href = "home.html";
-    return;
-  }
+/* ---------------- BACK ---------------- */
+window.goBack = function () {
+  location.href = "home.html";
+};
 
-  loadUsers();
-});
-
-/* LOAD USERS */
+/* ---------------- LOAD USERS ---------------- */
 function loadUsers() {
   onSnapshot(collection(db, "users"), (snap) => {
     const list = document.getElementById("userList");
@@ -80,7 +75,7 @@ function loadUsers() {
   });
 }
 
-/* ACTIONS */
+/* ---------------- ACTIONS ---------------- */
 window.banUser = async (uid) => {
   await setDoc(doc(db, "users", uid), { banned: true }, { merge: true });
 };
