@@ -6,141 +6,126 @@
 }
 
 body {
-  height: 100vh;
-  overflow: hidden;
   background: #0b1220;
   color: white;
+  height: 100vh;
+  overflow: hidden;
 }
 
-/* ===== BACKGROUND ===== */
+/* BACKGROUND */
 .bg {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at top left, #3b82f6, transparent 40%),
-              radial-gradient(circle at bottom right, #8b5cf6, transparent 40%),
-              radial-gradient(circle at center, #22c55e, transparent 60%);
-  filter: blur(80px);
-  opacity: 0.5;
-  animation: move 12s infinite alternate ease-in-out;
+  background: radial-gradient(circle at top, #3b82f6, transparent 40%),
+              radial-gradient(circle at bottom, #8b5cf6, transparent 40%);
+  filter: blur(90px);
+  opacity: 0.4;
   z-index: 0;
 }
 
-@keyframes move {
-  0% { transform: scale(1) rotate(0deg); }
-  100% { transform: scale(1.2) rotate(10deg); }
-}
-
-/* ===== LOGIN WRAPPER ===== */
+/* LOGIN */
 .loginBox {
-  position: relative;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1;
+  z-index: 2;
+  position: relative;
 }
 
-/* ===== GLASS CARD ===== */
-.glassCard {
-  width: 380px;
-  padding: 40px;
-  border-radius: 24px;
-
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(25px);
-
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
-
+.loginCard {
+  width: 320px;
+  padding: 30px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px);
   text-align: center;
-  transition: 0.3s;
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
-.glassCard:hover {
-  transform: translateY(-5px);
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  text-align: center;
 }
 
-/* ===== ICON ===== */
-.icon {
-  font-size: 48px;
-  margin-bottom: 10px;
-  filter: drop-shadow(0 0 10px rgba(59,130,246,0.6));
+button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  color: white;
+  cursor: pointer;
 }
 
-/* ===== TITLE ===== */
-h1 {
-  font-size: 24px;
-  margin-bottom: 6px;
-  letter-spacing: 1px;
+/* DASHBOARD */
+.dashboard {
+  display: flex;
+  height: 100vh;
+  position: relative;
+  z-index: 2;
 }
 
-p {
-  font-size: 13px;
-  opacity: 0.7;
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar button {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sidebar button:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 20px;
 }
 
-/* ===== INPUT ===== */
-input {
-  width: 100%;
-  padding: 14px;
-  border-radius: 14px;
-
-  border: 1px solid rgba(255,255,255,0.15);
+/* USER CARD */
+.user {
   background: rgba(255,255,255,0.08);
-
-  color: white;
-  outline: none;
-
-  text-align: center;
-
-  transition: 0.3s;
+  padding: 15px;
+  border-radius: 12px;
   margin-top: 10px;
 }
 
-input::placeholder {
-  color: rgba(255,255,255,0.5);
+.user button {
+  width: auto;
+  margin: 5px;
+  padding: 6px 10px;
 }
 
-input:focus {
-  border-color: #6366f1;
-  background: rgba(255,255,255,0.12);
-  transform: scale(1.02);
-  box-shadow: 0 0 20px rgba(99,102,241,0.4);
-}
-
-/* ===== BUTTON ===== */
-button {
-  width: 100%;
-  margin-top: 15px;
-  padding: 14px;
-
-  border: none;
-  border-radius: 14px;
-
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  color: white;
-
-  font-weight: bold;
-  cursor: pointer;
-
-  transition: 0.3s;
-  letter-spacing: 0.5px;
-}
-
-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 15px 35px rgba(139,92,246,0.5);
-}
-
-/* ===== FOOTER ===== */
-.footerText {
-  margin-top: 15px;
-  font-size: 11px;
-  opacity: 0.6;
-}
-
-/* ===== PANEL HIDE ===== */
+/* TABS */
 .hidden {
   display: none;
 }
