@@ -1,1 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+<link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
 
+<div class="adminBox">
+
+  <h2>👑 Admin Panel</h2>
+
+  <div class="stats">
+    <div>Total Users: <span id="totalUsers">0</span></div>
+  </div>
+
+  <button onclick="clearChat()">🗑 Clear Chat</button>
+
+  <h3>Users</h3>
+  <div id="userList"></div>
+
+</div>
+
+<script type="module" src="./js/admin.js"></script>
+</body>
+</html>
