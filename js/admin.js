@@ -26,6 +26,7 @@ window.checkPass = function () {
 
   if (pass === PASSWORD) {
     loggedIn = true;
+
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("adminPanel").classList.remove("hidden");
 
@@ -35,7 +36,7 @@ window.checkPass = function () {
   }
 };
 
-/* BACK */
+/* EXIT */
 window.goBack = function () {
   location.href = "home.html";
 };
@@ -71,10 +72,10 @@ function loadUsers() {
 
       div.innerHTML = `
         <b>${u.name || "User"}</b>
-        <div>${u.role || "user"}</div>
+        <div>Role: ${u.role || "user"}</div>
 
-        ${u.banned ? "🚫 Banned" : ""}
-        ${u.muted ? "🔇 Muted" : ""}
+        ${u.banned ? "<span>🚫 Banned</span>" : ""}
+        ${u.muted ? "<span>🔇 Muted</span>" : ""}
 
         <div>
           <button onclick="banUser('${d.id}')">Ban</button>
@@ -105,8 +106,10 @@ window.makeAdmin = (id) =>
 /* CLEAR CHAT */
 window.clearChat = async function () {
   const snap = await getDocs(collection(db, "messages"));
+
   snap.forEach(async (d) => {
     await deleteDoc(doc(db, "messages", d.id));
   });
+
   alert("Chat cleared");
 };
