@@ -1,80 +1,92 @@
 body {
   margin: 0;
-  font-family: Arial;
-  background: #f5f7fb;
-  color: #111;
+  font-family: monospace;
+  background: #050a12;
+  color: #00ff88;
 }
 
-/* LOGIN */
+/* LOGIN BACKGROUND ANIMATION */
+body::before {
+  content: "";
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(0,255,136,0.15), transparent 60%);
+  animation: pulse 4s infinite;
+  z-index: 0;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.2); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 0.3; }
+}
+
+/* LOGIN BOX */
 .loginBox {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
-.card {
-  background: white;
+.glass {
+  background: rgba(0,0,0,0.6);
+  border: 1px solid #00ff88;
   padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 0 20px #00ff8850;
+}
+
+.title h1 {
+  margin: 0;
+  text-shadow: 0 0 10px #00ff88;
+}
+
+.title p {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* INPUT */
+input {
+  margin-top: 15px;
+  width: 220px;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid #00ff88;
+  color: #00ff88;
+  outline: none;
   text-align: center;
 }
 
-input {
-  width: 200px;
-  padding: 10px;
-  margin-top: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+/* BUTTON */
+button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background: #00ff88;
+  border: none;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-button {
+button:hover {
+  box-shadow: 0 0 15px #00ff88;
+}
+
+/* HINT */
+.hint {
   margin-top: 10px;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #2563eb;
-  color: white;
+  font-size: 10px;
+  opacity: 0.6;
 }
 
 /* PANEL */
 .hidden {
   display: none;
-}
-
-.adminPanel {
-  padding: 20px;
-}
-
-/* TOPBAR */
-.topBar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-}
-
-/* STATS */
-.stats {
-  margin: 15px 0;
-  font-size: 18px;
-}
-
-/* BUTTON */
-.danger {
-  background: #ef4444;
-}
-
-/* USER CARD */
-.user {
-  background: white;
-  padding: 15px;
-  margin-top: 10px;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
