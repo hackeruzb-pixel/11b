@@ -9,7 +9,6 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
 const app = initializeApp({
   apiKey: "AIzaSyAW4JRvs_gwVHM1R8NJqfpB_toYIIZjWl0",
   authDomain: "authapp-e44f9.firebaseapp.com",
@@ -18,19 +17,15 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 
-/* PASSWORD */
 const PASSWORD = "231008xm";
-
-/* LOGIN STATE */
 let loggedIn = false;
 
-/* ---------------- LOGIN ---------------- */
+/* LOGIN */
 window.checkPass = function () {
   const pass = document.getElementById("adminPass").value;
 
   if (pass === PASSWORD) {
     loggedIn = true;
-
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("adminPanel").classList.remove("hidden");
 
@@ -40,21 +35,33 @@ window.checkPass = function () {
   }
 };
 
-/* ---------------- BACK ---------------- */
+/* BACK */
 window.goBack = function () {
   location.href = "home.html";
 };
 
-/* ---------------- USERS LOAD ---------------- */
+/* TABS */
+window.showTab = function (tab) {
+  document.getElementById("usersTab").classList.add("hidden");
+  document.getElementById("chatTab").classList.add("hidden");
+
+  if (tab === "users") {
+    document.getElementById("usersTab").classList.remove("hidden");
+  }
+
+  if (tab === "chat") {
+    document.getElementById("chatTab").classList.remove("hidden");
+  }
+};
+
+/* USERS */
 function loadUsers() {
   onSnapshot(collection(db, "users"), (snap) => {
     const list = document.getElementById("userList");
-    const total = document.getElementById("totalUsers");
-
-    if (!list || !total) return;
+    const stats = document.getElementById("stats");
 
     list.innerHTML = "";
-    total.innerText = snap.size;
+    stats.innerText = `Users: ${snap.size}`;
 
     snap.forEach((d) => {
       const u = d.data();
@@ -64,22 +71,17 @@ function loadUsers() {
 
       div.innerHTML = `
         <b>${u.name || "User"}</b>
-        <div>Role: ${u.role || "user"}</div>
-        ${u.banned ? "<span>🚫 BANNED</span>" : ""}
-        ${u.muted ? "<span>🔇 MUTED</span>" : ""}
+        <div>${u.role || "user"}</div>
 
-        ${
-          loggedIn
-            ? `
-              <div style="margin-top:10px">
-                <button onclick="banUser('${d.id}')">Ban</button>
-                <button onclick="unbanUser('${d.id}')">Unban</button>
-                <button onclick="muteUser('${d.id}')">Mute</button>
-                <button onclick="makeAdmin('${d.id}')">Admin</button>
-              </div>
-            `
-            : ""
-        }
+        ${u.banned ? "🚫 Banned" : ""}
+        ${u.muted ? "🔇 Muted" : ""}
+
+        <div>
+          <button onclick="banUser('${d.id}')">Ban</button>
+          <button onclick="unbanUser('${d.id}')">Unban</button>
+          <button onclick="muteUser('${d.id}')">Mute</button>
+          <button onclick="makeAdmin('${d.id}')">Admin</button>
+        </div>
       `;
 
       list.appendChild(div);
@@ -87,48 +89,24 @@ function loadUsers() {
   });
 }
 
-/* ---------------- ACTIONS ---------------- */
-window.banUser = async (uid) => {
-  if (!loggedIn) return;
+/* ACTIONS */
+window.banUser = (id) =>
+  setDoc(doc(db, "users", id), { banned: true }, { merge: true });
 
-  await setDoc(doc(db, "users", uid), {
-    banned: true
-  }, { merge: true });
-};
+window.unbanUser = (id) =>
+  setDoc(doc(db, "users", id), { banned: false }, { merge: true });
 
-window.unbanUser = async (uid) => {
-  if (!loggedIn) return;
+window.muteUser = (id) =>
+  setDoc(doc(db, "users", id), { muted: true }, { merge: true });
 
-  await setDoc(doc(db, "users", uid), {
-    banned: false
-  }, { merge: true });
-};
+window.makeAdmin = (id) =>
+  setDoc(doc(db, "users", id), { role: "admin" }, { merge: true });
 
-window.muteUser = async (uid) => {
-  if (!loggedIn) return;
-
-  await setDoc(doc(db, "users", uid), {
-    muted: true
-  }, { merge: true });
-};
-
-window.makeAdmin = async (uid) => {
-  if (!loggedIn) return;
-
-  await setDoc(doc(db, "users", uid), {
-    role: "admin"
-  }, { merge: true });
-};
-
-/* ---------------- CLEAR CHAT ---------------- */
-window.clearChat = async () => {
-  if (!loggedIn) return;
-
+/* CLEAR CHAT */
+window.clearChat = async function () {
   const snap = await getDocs(collection(db, "messages"));
-
   snap.forEach(async (d) => {
     await deleteDoc(doc(db, "messages", d.id));
   });
-
-  alert("🧹 Chat cleared!");
+  alert("Chat cleared");
 };
