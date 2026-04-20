@@ -3,24 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Access</title>
+<title>Admin Login</title>
 <link rel="stylesheet" href="./css/admin.css">
 </head>
 <body>
 
-<!-- LOGIN -->
+<div class="bg"></div>
+
 <div id="loginBox" class="loginBox">
 
-  <div class="card">
+  <div class="glassCard">
 
-    <div class="logo">🔐 Admin System</div>
-    <p class="subtitle">Secure dashboard access</p>
+    <div class="icon">🔐</div>
 
-    <input type="password" id="adminPass" placeholder="Enter admin password">
+    <h1>Admin Dashboard</h1>
+    <p>Secure access required</p>
 
-    <button onclick="checkPass()">Login</button>
+    <input type="password" id="adminPass" placeholder="Enter password">
 
-    <div class="hint">Protected system • Authorized users only</div>
+    <button onclick="checkPass()">Sign in</button>
+
+    <div class="footerText">
+      Protected system • Unauthorized access denied
+    </div>
 
   </div>
 
@@ -28,20 +33,7 @@
 
 <!-- PANEL -->
 <div id="adminPanel" class="hidden">
-
-  <div class="topBar">
-    <button onclick="goBack()">⬅ Back</button>
-    <h2>Admin Dashboard</h2>
-  </div>
-
-  <div class="stats">
-    👥 Total Users: <span id="totalUsers">0</span>
-  </div>
-
-  <button class="danger" onclick="clearChat()">🗑 Clear Chat</button>
-
-  <div id="userList" class="userList"></div>
-
+  <h2>Admin Panel</h2>
 </div>
 
 <script type="module" src="./js/admin.js"></script>
