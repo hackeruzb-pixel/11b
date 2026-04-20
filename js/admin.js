@@ -9,6 +9,7 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* FIREBASE */
 const app = initializeApp({
   apiKey: "AIzaSyAW4JRvs_gwVHM1R8NJqfpB_toYIIZjWl0",
   authDomain: "authapp-e44f9.firebaseapp.com",
@@ -19,29 +20,38 @@ const db = getFirestore(app);
 
 /* PASSWORD */
 const PASSWORD = "231008xm";
-const PASSWORD = "231008xm";
 
+/* LOGIN STATE */
+let loggedIn = false;
+
+/* ---------------- LOGIN ---------------- */
 window.checkPass = function () {
   const pass = document.getElementById("adminPass").value;
 
   if (pass === PASSWORD) {
+    loggedIn = true;
+
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("adminPanel").classList.remove("hidden");
+
+    loadUsers();
   } else {
     alert("❌ Wrong password");
   }
 };
 
+/* ---------------- BACK ---------------- */
 window.goBack = function () {
   location.href = "home.html";
 };
-};
 
-/* ---------------- USERS ---------------- */
+/* ---------------- USERS LOAD ---------------- */
 function loadUsers() {
   onSnapshot(collection(db, "users"), (snap) => {
     const list = document.getElementById("userList");
     const total = document.getElementById("totalUsers");
+
+    if (!list || !total) return;
 
     list.innerHTML = "";
     total.innerText = snap.size;
@@ -61,7 +71,7 @@ function loadUsers() {
         ${
           loggedIn
             ? `
-              <div>
+              <div style="margin-top:10px">
                 <button onclick="banUser('${d.id}')">Ban</button>
                 <button onclick="unbanUser('${d.id}')">Unban</button>
                 <button onclick="muteUser('${d.id}')">Mute</button>
@@ -80,22 +90,34 @@ function loadUsers() {
 /* ---------------- ACTIONS ---------------- */
 window.banUser = async (uid) => {
   if (!loggedIn) return;
-  await setDoc(doc(db, "users", uid), { banned: true }, { merge: true });
+
+  await setDoc(doc(db, "users", uid), {
+    banned: true
+  }, { merge: true });
 };
 
 window.unbanUser = async (uid) => {
   if (!loggedIn) return;
-  await setDoc(doc(db, "users", uid), { banned: false }, { merge: true });
+
+  await setDoc(doc(db, "users", uid), {
+    banned: false
+  }, { merge: true });
 };
 
 window.muteUser = async (uid) => {
   if (!loggedIn) return;
-  await setDoc(doc(db, "users", uid), { muted: true }, { merge: true });
+
+  await setDoc(doc(db, "users", uid), {
+    muted: true
+  }, { merge: true });
 };
 
 window.makeAdmin = async (uid) => {
   if (!loggedIn) return;
-  await setDoc(doc(db, "users", uid), { role: "admin" }, { merge: true });
+
+  await setDoc(doc(db, "users", uid), {
+    role: "admin"
+  }, { merge: true });
 };
 
 /* ---------------- CLEAR CHAT ---------------- */
@@ -108,5 +130,5 @@ window.clearChat = async () => {
     await deleteDoc(doc(db, "messages", d.id));
   });
 
-  alert("Chat cleared");
+  alert("🧹 Chat cleared!");
 };
