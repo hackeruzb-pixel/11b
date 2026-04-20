@@ -3,36 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard</title>
+<title>Admin Access</title>
 <link rel="stylesheet" href="./css/admin.css">
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginBox" class="loginBox">
-  <div class="card">
-    <h2>🔐 Admin Login</h2>
-    <input type="password" id="adminPass" placeholder="Password">
-    <button onclick="checkPass()">Login</button>
+
+  <div class="glass">
+
+    <div class="title">
+      <h1>🔐 ADMIN ACCESS</h1>
+      <p>Secure system login</p>
+    </div>
+
+    <input type="password" id="adminPass" placeholder="Enter access key">
+
+    <button onclick="checkPass()">ENTER SYSTEM</button>
+
+    <div class="hint">Access Level: ROOT ONLY</div>
+
   </div>
+
 </div>
 
-<!-- ADMIN PANEL -->
-<div id="adminPanel" class="adminPanel hidden">
+<!-- PANEL -->
+<div id="adminPanel" class="hidden">
+  <h2>Admin Panel</h2>
+  <button onclick="goBack()">⬅ Back</button>
 
-  <div class="topBar">
-    <button onclick="goBack()">⬅ Back</button>
-    <h2>Admin Dashboard</h2>
-  </div>
-
-  <div class="stats">
-    👥 Users: <span id="totalUsers">0</span>
-  </div>
-
-  <button class="danger" onclick="clearChat()">🗑 Clear Chat</button>
-
-  <div id="userList" class="userList"></div>
-
+  <div id="userList"></div>
 </div>
 
 <script type="module" src="./js/admin.js"></script>
