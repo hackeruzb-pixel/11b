@@ -6,11 +6,9 @@ import {
   doc,
   setDoc,
   deleteDoc,
-  getDocs,
-  getDoc
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
 const app = initializeApp({
   apiKey: "AIzaSyAW4JRvs_gwVHM1R8NJqfpB_toYIIZjWl0",
   authDomain: "authapp-e44f9.firebaseapp.com",
@@ -22,16 +20,21 @@ const db = getFirestore(app);
 /* PASSWORD */
 const PASSWORD = "231008xm";
 
-/* ---------------- LOGIN CHECK ---------------- */
+let loggedIn = false;
+
+/* ---------------- LOGIN ---------------- */
 window.checkPass = function () {
   const pass = document.getElementById("adminPass").value;
 
   if (pass === PASSWORD) {
+    loggedIn = true;
+
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("adminPanel").classList.remove("hidden");
+
     loadUsers();
   } else {
-    alert("❌ Wrong password!");
+    alert("❌ Wrong password");
   }
 };
 
@@ -40,7 +43,7 @@ window.goBack = function () {
   location.href = "home.html";
 };
 
-/* ---------------- LOAD USERS ---------------- */
+/* ---------------- USERS ---------------- */
 function loadUsers() {
   onSnapshot(collection(db, "users"), (snap) => {
     const list = document.getElementById("userList");
@@ -57,17 +60,22 @@ function loadUsers() {
 
       div.innerHTML = `
         <b>${u.name || "User"}</b>
-        <br>
-        Role: ${u.role || "user"}
-        <br>
-        ${u.banned ? "🚫 BANNED" : ""}
-        ${u.muted ? "🔇 MUTED" : ""}
-        <br>
+        <div>Role: ${u.role || "user"}</div>
+        ${u.banned ? "<span>🚫 BANNED</span>" : ""}
+        ${u.muted ? "<span>🔇 MUTED</span>" : ""}
 
-        <button onclick="banUser('${d.id}')">🚫 Ban</button>
-        <button onclick="unbanUser('${d.id}')">✅ Unban</button>
-        <button onclick="muteUser('${d.id}')">🔇 Mute</button>
-        <button onclick="makeAdmin('${d.id}')">👑 Admin</button>
+        ${
+          loggedIn
+            ? `
+              <div>
+                <button onclick="banUser('${d.id}')">Ban</button>
+                <button onclick="unbanUser('${d.id}')">Unban</button>
+                <button onclick="muteUser('${d.id}')">Mute</button>
+                <button onclick="makeAdmin('${d.id}')">Admin</button>
+              </div>
+            `
+            : ""
+        }
       `;
 
       list.appendChild(div);
@@ -77,26 +85,34 @@ function loadUsers() {
 
 /* ---------------- ACTIONS ---------------- */
 window.banUser = async (uid) => {
+  if (!loggedIn) return;
   await setDoc(doc(db, "users", uid), { banned: true }, { merge: true });
 };
 
 window.unbanUser = async (uid) => {
+  if (!loggedIn) return;
   await setDoc(doc(db, "users", uid), { banned: false }, { merge: true });
 };
 
 window.muteUser = async (uid) => {
+  if (!loggedIn) return;
   await setDoc(doc(db, "users", uid), { muted: true }, { merge: true });
 };
 
 window.makeAdmin = async (uid) => {
+  if (!loggedIn) return;
   await setDoc(doc(db, "users", uid), { role: "admin" }, { merge: true });
 };
 
+/* ---------------- CLEAR CHAT ---------------- */
 window.clearChat = async () => {
+  if (!loggedIn) return;
+
   const snap = await getDocs(collection(db, "messages"));
+
   snap.forEach(async (d) => {
     await deleteDoc(doc(db, "messages", d.id));
   });
 
-  alert("Chat cleared!");
+  alert("Chat cleared");
 };
