@@ -8,29 +8,29 @@
 body {
   height: 100vh;
   overflow: hidden;
-  background: #0f172a;
+  background: #0b1220;
+  color: white;
 }
 
-/* BACKGROUND GRADIENT ANIMATION */
+/* ===== BACKGROUND ===== */
 .bg {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(-45deg, #0ea5e9, #6366f1, #8b5cf6, #22c55e);
-  background-size: 400% 400%;
-  animation: gradient 10s ease infinite;
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at top left, #3b82f6, transparent 40%),
+              radial-gradient(circle at bottom right, #8b5cf6, transparent 40%),
+              radial-gradient(circle at center, #22c55e, transparent 60%);
+  filter: blur(80px);
+  opacity: 0.5;
+  animation: move 12s infinite alternate ease-in-out;
   z-index: 0;
-  filter: blur(40px);
-  opacity: 0.6;
 }
 
-@keyframes gradient {
-  0% {background-position:0% 50%;}
-  50% {background-position:100% 50%;}
-  100% {background-position:0% 50%;}
+@keyframes move {
+  0% { transform: scale(1) rotate(0deg); }
+  100% { transform: scale(1.2) rotate(10deg); }
 }
 
-/* LOGIN CENTER */
+/* ===== LOGIN WRAPPER ===== */
 .loginBox {
   position: relative;
   height: 100vh;
@@ -40,35 +40,38 @@ body {
   z-index: 1;
 }
 
-/* GLASS CARD */
+/* ===== GLASS CARD ===== */
 .glassCard {
-  width: 360px;
+  width: 380px;
   padding: 40px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  border-radius: 24px;
+
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(25px);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
+
   text-align: center;
-  color: white;
-  animation: fadeIn 0.6s ease;
+  transition: 0.3s;
 }
 
-@keyframes fadeIn {
-  from {transform: translateY(20px); opacity: 0;}
-  to {transform: translateY(0); opacity: 1;}
+.glassCard:hover {
+  transform: translateY(-5px);
 }
 
-/* ICON */
+/* ===== ICON ===== */
 .icon {
-  font-size: 40px;
+  font-size: 48px;
   margin-bottom: 10px;
+  filter: drop-shadow(0 0 10px rgba(59,130,246,0.6));
 }
 
-/* TITLE */
+/* ===== TITLE ===== */
 h1 {
-  font-size: 22px;
-  margin-bottom: 5px;
+  font-size: 24px;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
 }
 
 p {
@@ -77,56 +80,67 @@ p {
   margin-bottom: 20px;
 }
 
-/* INPUT */
+/* ===== INPUT ===== */
 input {
   width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  border: none;
-  outline: none;
-  margin-top: 10px;
-  background: rgba(255,255,255,0.15);
+  padding: 14px;
+  border-radius: 14px;
+
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+
   color: white;
+  outline: none;
+
   text-align: center;
+
   transition: 0.3s;
+  margin-top: 10px;
 }
 
 input::placeholder {
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.5);
 }
 
 input:focus {
-  background: rgba(255,255,255,0.25);
+  border-color: #6366f1;
+  background: rgba(255,255,255,0.12);
   transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(99,102,241,0.4);
 }
 
-/* BUTTON */
+/* ===== BUTTON ===== */
 button {
   width: 100%;
   margin-top: 15px;
-  padding: 12px;
-  border-radius: 12px;
+  padding: 14px;
+
   border: none;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 14px;
+
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: white;
+
   font-weight: bold;
   cursor: pointer;
+
   transition: 0.3s;
+  letter-spacing: 0.5px;
 }
 
 button:hover {
   transform: scale(1.05);
-  box-shadow: 0 10px 30px rgba(139,92,246,0.4);
+  box-shadow: 0 15px 35px rgba(139,92,246,0.5);
 }
 
-/* FOOTER TEXT */
+/* ===== FOOTER ===== */
 .footerText {
   margin-top: 15px;
-  font-size: 10px;
+  font-size: 11px;
   opacity: 0.6;
 }
 
-/* PANEL */
+/* ===== PANEL HIDE ===== */
 .hidden {
   display: none;
 }
