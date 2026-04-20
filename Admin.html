@@ -3,36 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Access</title>
+<title>Secure Admin Access</title>
 <link rel="stylesheet" href="./css/admin.css">
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
 <div id="loginBox" class="loginBox">
 
-  <div class="glass">
+  <div class="fingerCard">
 
-    <div class="title">
-      <h1>🔐 ADMIN ACCESS</h1>
-      <p>Secure system login</p>
+    <h2>🔐 Secure Access</h2>
+    <p>Place fingerprint to continue</p>
+
+    <!-- FINGERPRINT ICON -->
+    <div class="fingerprint" onclick="scanFingerprint()">
+      <div class="scanLine"></div>
     </div>
 
-    <input type="password" id="adminPass" placeholder="Enter access key">
+    <button onclick="scanFingerprint()">Scan Fingerprint</button>
 
-    <button onclick="checkPass()">ENTER SYSTEM</button>
+    <input type="password" id="adminPass" placeholder="or enter key manually">
 
-    <div class="hint">Access Level: ROOT ONLY</div>
+    <button onclick="checkPass()">Login</button>
+
+    <div class="hint">SYSTEM: HIGH SECURITY MODE</div>
 
   </div>
 
 </div>
 
-<!-- PANEL -->
+<!-- ADMIN PANEL -->
 <div id="adminPanel" class="hidden">
   <h2>Admin Panel</h2>
   <button onclick="goBack()">⬅ Back</button>
-
-  <div id="userList"></div>
 </div>
 
 <script type="module" src="./js/admin.js"></script>
