@@ -1,85 +1,84 @@
 body {
   margin: 0;
   font-family: monospace;
-  background: #050a12;
+  background: #05070f;
   color: #00ff88;
 }
 
-/* LOGIN BACKGROUND ANIMATION */
-body::before {
-  content: "";
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(0,255,136,0.15), transparent 60%);
-  animation: pulse 4s infinite;
-  z-index: 0;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 0.3; }
-  50% { transform: scale(1.2); opacity: 0.6; }
-  100% { transform: scale(1); opacity: 0.3; }
-}
-
-/* LOGIN BOX */
+/* LOGIN CENTER */
 .loginBox {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
-  z-index: 1;
 }
 
-.glass {
+/* CARD */
+.fingerCard {
+  text-align: center;
   background: rgba(0,0,0,0.6);
   border: 1px solid #00ff88;
   padding: 30px;
-  border-radius: 12px;
-  text-align: center;
+  border-radius: 15px;
   box-shadow: 0 0 20px #00ff8850;
 }
 
-.title h1 {
-  margin: 0;
-  text-shadow: 0 0 10px #00ff88;
+/* FINGERPRINT ICON */
+.fingerprint {
+  width: 120px;
+  height: 120px;
+  margin: 20px auto;
+  border-radius: 50%;
+  border: 2px solid #00ff88;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  background: radial-gradient(circle, rgba(0,255,136,0.1), transparent);
 }
 
-.title p {
-  font-size: 12px;
-  opacity: 0.7;
+/* SCAN ANIMATION */
+.scanLine {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: #00ff88;
+  top: 0;
+  animation: scan 2s infinite;
+  box-shadow: 0 0 15px #00ff88;
+}
+
+@keyframes scan {
+  0% { top: 0; }
+  50% { top: 50%; }
+  100% { top: 100%; }
 }
 
 /* INPUT */
 input {
-  margin-top: 15px;
-  width: 220px;
+  width: 200px;
   padding: 10px;
+  margin-top: 10px;
   background: transparent;
   border: 1px solid #00ff88;
   color: #00ff88;
-  outline: none;
   text-align: center;
 }
 
 /* BUTTON */
 button {
-  margin-top: 15px;
-  padding: 10px 20px;
+  margin-top: 10px;
+  padding: 10px 15px;
   background: #00ff88;
   border: none;
-  color: #000;
+  color: black;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
 }
 
 button:hover {
   box-shadow: 0 0 15px #00ff88;
 }
 
-/* HINT */
 .hint {
   margin-top: 10px;
   font-size: 10px;
