@@ -8,15 +8,26 @@
 </head>
 <body>
 
-<div class="adminBox">
+<!-- LOGIN SCREEN -->
+<div id="loginBox" class="loginBox">
+  <h2>🔐 Admin Login</h2>
+  <input type="password" id="adminPass" placeholder="Enter password">
+  <button onclick="checkPass()">Login</button>
+</div>
 
-  <h2>👑 Admin Panel</h2>
+<!-- ADMIN PANEL -->
+<div id="adminPanel" class="adminPanel hidden">
 
-  <div class="stats">
-    <div>Total Users: <span id="totalUsers">0</span></div>
+  <div class="topBar">
+    <button onclick="goBack()">⬅ Orqaga</button>
+    <h2>👑 Admin Panel</h2>
   </div>
 
-  <button onclick="clearChat()">🗑 Clear Chat</button>
+  <div class="stats">
+    👥 Users: <span id="totalUsers">0</span>
+  </div>
+
+  <button class="danger" onclick="clearChat()">🗑 Clear Chat</button>
 
   <h3>Users</h3>
   <div id="userList"></div>
