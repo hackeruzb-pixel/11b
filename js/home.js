@@ -11,7 +11,8 @@ import {
   doc,
   updateDoc,
   getDoc,
-  setDoc
+  setDoc,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
@@ -36,6 +37,7 @@ let userName = "";
 let userAvatar = "";
 let replyTo = null;
 let typingTimer = null;
+let isAdmin = false;
 
 /* ---------------- AUTH ---------------- */
 onAuthStateChanged(auth, async (user) => {
@@ -46,7 +48,9 @@ onAuthStateChanged(auth, async (user) => {
 
   const snap = await getDoc(doc(db, "users", user.uid));
   if (snap.exists()) {
-    userAvatar = snap.data().avatar || "";
+    const data = snap.data();
+    userAvatar = data.avatar || "";
+    isAdmin = data.role === "admin";
   }
 
   await setDoc(doc(db, "status", user.uid), {
@@ -67,6 +71,12 @@ window.sendMsg = async function () {
 
   if (!text || !currentUser) return;
 
+  const userSnap = await getDoc(doc(db, "users", currentUser.uid));
+  const u = userSnap.data();
+
+  if (u?.banned) return alert("🚫 You are banned");
+  if (u?.muted) return alert("🔇 You are muted");
+
   await addDoc(collection(db, "messages"), {
     text,
     uid: currentUser.uid,
@@ -74,7 +84,8 @@ window.sendMsg = async function () {
     avatar: userAvatar,
     time: serverTimestamp(),
     reply: replyTo,
-    seen: false
+    seen: false,
+    pinned: false
   });
 
   input.value = "";
@@ -84,20 +95,58 @@ window.sendMsg = async function () {
 
 /* ---------------- DELETE ---------------- */
 window.deleteMsg = async function (id, uid) {
-  if (currentUser.uid !== uid) return;
+  if (currentUser.uid !== uid && !isAdmin) return;
   await deleteDoc(doc(db, "messages", id));
 };
 
 /* ---------------- EDIT ---------------- */
 window.editMsg = async function (id, uid, oldText) {
-  if (currentUser.uid !== uid) return;
+  if (currentUser.uid !== uid && !isAdmin) return;
 
   const newText = prompt("Edit message:", oldText);
   if (!newText) return;
 
   await updateDoc(doc(db, "messages", id), {
-    text: newText
+    text: newText,
+    edited: true
   });
+};
+
+/* ---------------- ADMIN ACTIONS ---------------- */
+window.banUser = async function (uid) {
+  if (!isAdmin) return;
+  await setDoc(doc(db, "users", uid), { banned: true }, { merge: true });
+};
+
+window.unbanUser = async function (uid) {
+  if (!isAdmin) return;
+  await setDoc(doc(db, "users", uid), { banned: false }, { merge: true });
+};
+
+window.muteUser = async function (uid) {
+  if (!isAdmin) return;
+  await setDoc(doc(db, "users", uid), { muted: true }, { merge: true });
+};
+
+window.makeAdmin = async function (uid) {
+  if (!isAdmin) return;
+  await setDoc(doc(db, "users", uid), { role: "admin" }, { merge: true });
+};
+
+window.pinMsg = async function (id) {
+  if (!isAdmin) return;
+  await updateDoc(doc(db, "messages", id), { pinned: true });
+};
+
+window.clearChat = async function () {
+  if (!isAdmin) return;
+
+  const snap = await getDocs(collection(db, "messages"));
+  snap.forEach(async (d) => {
+    await deleteDoc(doc(db, "messages", d.id));
+  });
+
+  alert("Chat cleared!");
 };
 
 /* ---------------- REPLY ---------------- */
@@ -193,8 +242,9 @@ function listenUsers() {
 
       div.innerHTML = `
         <span class="dot ${u.online ? "online" : "offline"}"></span>
-        <b>${u.name || (d.id === currentUser.uid ? "You" : "User")}</b>
+        <b>${u.name || "User"}</b>
         ${u.typing ? " ✍" : ""}
+        ${isAdmin ? `<button onclick="banUser('${d.id}')">🚫</button>` : ""}
       `;
 
       list.appendChild(div);
@@ -218,22 +268,15 @@ onSnapshot(q, (snap) => {
 
     if (m.uid === currentUser?.uid) div.classList.add("me");
 
-    let replyHTML = "";
-    if (m.reply) {
-      replyHTML = `
-        <div class="replyBox" onclick="scrollToMsg('${m.reply.id}')">
-          ↩ <b>${m.reply.name}</b>: ${m.reply.text}
-        </div>
-      `;
-    }
-
     div.innerHTML = `
       <div class="msgHeader">
         <img src="${m.avatar || './img/download.png'}">
         <b>${m.name}</b>
       </div>
 
-      ${replyHTML}
+      ${m.pinned ? "<div class='pin'>📌 Pinned</div>" : ""}
+
+      ${m.reply ? `<div class="replyBox">↩ ${m.reply.name}: ${m.reply.text}</div>` : ""}
 
       <div class="msgText">${m.text}</div>
 
@@ -242,28 +285,29 @@ onSnapshot(q, (snap) => {
       </div>
 
       <div class="msgMenu">
+        <button onclick="replyMsg('${d.id}','${m.text}','${m.name}')">↩</button>
+
         ${
-          m.uid === currentUser?.uid
+          (m.uid === currentUser?.uid || isAdmin)
+            ? `<button onclick="editMsg('${d.id}','${m.uid}','${m.text}')">✏️</button>
+               <button onclick="deleteMsg('${d.id}','${m.uid}')">🗑</button>`
+            : ""
+        }
+
+        ${
+          isAdmin
             ? `
-              <button onclick="replyMsg('${d.id}','${m.text}','${m.name}')">↩ Reply</button>
-              <button onclick="editMsg('${d.id}','${m.uid}','${m.text}')">✏️ Edit</button>
-              <button onclick="deleteMsg('${d.id}','${m.uid}')">🗑 Delete</button>
+              <button onclick="pinMsg('${d.id}')">📌</button>
+              <button onclick="banUser('${m.uid}')">🚫</button>
+              <button onclick="muteUser('${m.uid}')">🔇</button>
             `
-            : `
-              <button onclick="replyMsg('${d.id}','${m.text}','${m.name}')">↩ Reply</button>
-            `
+            : ""
         }
       </div>
     `;
 
-    div.addEventListener("click", (e) => {
-      e.stopPropagation();
-      document.querySelectorAll(".msgMenu").forEach(el => el.style.display = "none");
-      div.querySelector(".msgMenu").style.display = "flex";
-    });
-
-    markSeen(d.id);
     chat.appendChild(div);
+    markSeen(d.id);
   });
 });
 
@@ -277,12 +321,12 @@ window.scrollToMsg = function (id) {
 document.addEventListener("click", () => {
   document.querySelectorAll(".msgMenu").forEach(el => el.style.display = "none");
 });
-// OPEN USER LIST
+
+/* USER PANEL */
 document.getElementById("userToggleBtn").addEventListener("click", () => {
   document.getElementById("userPanel").classList.add("active");
 });
 
-// CLOSE USER LIST
 window.closeUserList = function () {
   document.getElementById("userPanel").classList.remove("active");
 };
