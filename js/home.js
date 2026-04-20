@@ -21,13 +21,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 /* FIREBASE */
-const firebaseConfig = {
+const app = initializeApp({
   apiKey: "AIzaSyAW4JRvs_gwVHM1R8NJqfpB_toYIIZjWl0",
   authDomain: "authapp-e44f9.firebaseapp.com",
   projectId: "authapp-e44f9",
-};
+});
 
-const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
@@ -35,9 +34,9 @@ const auth = getAuth(app);
 let currentUser = null;
 let userName = "";
 let userAvatar = "";
+let isAdmin = false;
 let replyTo = null;
 let typingTimer = null;
-let isAdmin = false;
 
 /* ---------------- AUTH ---------------- */
 onAuthStateChanged(auth, async (user) => {
@@ -65,14 +64,14 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 /* ---------------- SEND MESSAGE ---------------- */
-window.sendMsg = async function () {
+window.sendMsg = async () => {
   const input = document.getElementById("chatText");
   const text = input.value.trim();
 
   if (!text || !currentUser) return;
 
-  const userSnap = await getDoc(doc(db, "users", currentUser.uid));
-  const u = userSnap.data();
+  const snap = await getDoc(doc(db, "users", currentUser.uid));
+  const u = snap.data();
 
   if (u?.banned) return alert("🚫 You are banned");
   if (u?.muted) return alert("🔇 You are muted");
@@ -85,7 +84,7 @@ window.sendMsg = async function () {
     time: serverTimestamp(),
     reply: replyTo,
     seen: false,
-    pinned: false
+    edited: false
   });
 
   input.value = "";
@@ -94,14 +93,14 @@ window.sendMsg = async function () {
 };
 
 /* ---------------- DELETE ---------------- */
-window.deleteMsg = async function (id, uid) {
-  if (currentUser.uid !== uid && !isAdmin) return;
+window.deleteMsg = async (id, uid) => {
+  if (uid !== currentUser.uid && !isAdmin) return;
   await deleteDoc(doc(db, "messages", id));
 };
 
 /* ---------------- EDIT ---------------- */
-window.editMsg = async function (id, uid, oldText) {
-  if (currentUser.uid !== uid && !isAdmin) return;
+window.editMsg = async (id, uid, oldText) => {
+  if (uid !== currentUser.uid && !isAdmin) return;
 
   const newText = prompt("Edit message:", oldText);
   if (!newText) return;
@@ -112,33 +111,28 @@ window.editMsg = async function (id, uid, oldText) {
   });
 };
 
-/* ---------------- ADMIN ACTIONS ---------------- */
-window.banUser = async function (uid) {
+/* ---------------- ADMIN ---------------- */
+window.banUser = async (uid) => {
   if (!isAdmin) return;
   await setDoc(doc(db, "users", uid), { banned: true }, { merge: true });
 };
 
-window.unbanUser = async function (uid) {
+window.unbanUser = async (uid) => {
   if (!isAdmin) return;
   await setDoc(doc(db, "users", uid), { banned: false }, { merge: true });
 };
 
-window.muteUser = async function (uid) {
+window.muteUser = async (uid) => {
   if (!isAdmin) return;
   await setDoc(doc(db, "users", uid), { muted: true }, { merge: true });
 };
 
-window.makeAdmin = async function (uid) {
+window.makeAdmin = async (uid) => {
   if (!isAdmin) return;
   await setDoc(doc(db, "users", uid), { role: "admin" }, { merge: true });
 };
 
-window.pinMsg = async function (id) {
-  if (!isAdmin) return;
-  await updateDoc(doc(db, "messages", id), { pinned: true });
-};
-
-window.clearChat = async function () {
+window.clearChat = async () => {
   if (!isAdmin) return;
 
   const snap = await getDocs(collection(db, "messages"));
@@ -146,11 +140,11 @@ window.clearChat = async function () {
     await deleteDoc(doc(db, "messages", d.id));
   });
 
-  alert("Chat cleared!");
+  alert("Chat cleared");
 };
 
 /* ---------------- REPLY ---------------- */
-window.replyMsg = function (id, text, name) {
+window.replyMsg = (id, text, name) => {
   replyTo = { id, text, name };
 
   const box = document.getElementById("replyBox");
@@ -162,7 +156,7 @@ window.replyMsg = function (id, text, name) {
   }
 };
 
-window.cancelReply = function () {
+window.cancelReply = () => {
   replyTo = null;
   const box = document.getElementById("replyBox");
   if (box) box.style.display = "none";
@@ -186,9 +180,7 @@ input.addEventListener("input", () => {
   setTyping(true);
 
   clearTimeout(typingTimer);
-  typingTimer = setTimeout(() => {
-    setTyping(false);
-  }, 1000);
+  typingTimer = setTimeout(() => setTyping(false), 1000);
 });
 
 async function setTyping(state) {
@@ -203,9 +195,7 @@ async function setTyping(state) {
 
 /* ---------------- LISTEN TYPING ---------------- */
 function listenTyping() {
-  const statusRef = collection(db, "status");
-
-  onSnapshot(statusRef, (snap) => {
+  onSnapshot(collection(db, "status"), (snap) => {
     const box = document.getElementById("typingBox");
     if (!box) return;
 
@@ -213,22 +203,19 @@ function listenTyping() {
 
     snap.forEach((d) => {
       const u = d.data();
-
       if (u.typing && d.id !== currentUser.uid) {
         users.push(u.name || "User");
       }
     });
 
     box.style.display = users.length ? "block" : "none";
-    box.innerText = users.length ? `${users.join(", ")} typing...` : "";
+    box.innerText = users.join(", ") + (users.length ? " typing..." : "");
   });
 }
 
 /* ---------------- USERS LIST ---------------- */
 function listenUsers() {
-  const statusRef = collection(db, "status");
-
-  onSnapshot(statusRef, (snap) => {
+  onSnapshot(collection(db, "status"), (snap) => {
     const list = document.getElementById("userList");
     if (!list) return;
 
@@ -262,72 +249,66 @@ onSnapshot(q, (snap) => {
   snap.forEach((d) => {
     const m = d.data();
 
-    const div = document.createElement("div");
-    div.className = "msg";
-    div.id = d.id;
+    const msg = document.createElement("div");
+    msg.className = "msg";
+    msg.id = d.id;
 
-    if (m.uid === currentUser?.uid) div.classList.add("me");
+    if (m.uid === currentUser?.uid) msg.classList.add("me");
 
-    div.innerHTML = `
+    msg.innerHTML = `
       <div class="msgHeader">
         <img src="${m.avatar || './img/download.png'}">
         <b>${m.name}</b>
       </div>
 
-      <div class="msgText">${m.text}</div>
+      ${m.reply ? `<div class="replyBox">↩ ${m.reply.name}: ${m.reply.text}</div>` : ""}
+
+      <div class="msgText">${m.text} ${m.edited ? "<span>(edited)</span>" : ""}</div>
 
       <div class="msgFooter">
         ${m.seen ? "✔✔ seen" : ""}
       </div>
 
-      <div class="msgMenu" style="display:none;">
-        <button class="replyBtn">↩ Reply</button>
-        ${
-          (m.uid === currentUser?.uid || isAdmin)
-            ? `
-              <button class="editBtn">✏️ Edit</button>
-              <button class="deleteBtn">🗑 Delete</button>
-            `
-            : ""
-        }
+      <div class="msgMenu">
+        <button class="replyBtn">↩</button>
+        ${(m.uid === currentUser?.uid || isAdmin) ? `
+          <button class="editBtn">✏️</button>
+          <button class="deleteBtn">🗑</button>
+        ` : ""}
       </div>
     `;
 
-    // 🔥 BUTTON EVENTS (MUHIM)
-    const replyBtn = div.querySelector(".replyBtn");
-    const editBtn = div.querySelector(".editBtn");
-    const deleteBtn = div.querySelector(".deleteBtn");
+    // EVENTS
+    msg.querySelector(".replyBtn").onclick = (e) => {
+      e.stopPropagation();
+      replyMsg(d.id, m.text, m.name);
+    };
 
-    if (replyBtn) {
-      replyBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        window.replyMsg(d.id, m.text, m.name);
-      });
-    }
-
+    const editBtn = msg.querySelector(".editBtn");
     if (editBtn) {
-      editBtn.addEventListener("click", (e) => {
+      editBtn.onclick = (e) => {
         e.stopPropagation();
-        window.editMsg(d.id, m.uid, m.text);
-      });
+        editMsg(d.id, m.uid, m.text);
+      };
     }
 
+    const deleteBtn = msg.querySelector(".deleteBtn");
     if (deleteBtn) {
-      deleteBtn.addEventListener("click", (e) => {
+      deleteBtn.onclick = (e) => {
         e.stopPropagation();
-        window.deleteMsg(d.id, m.uid);
-      });
+        deleteMsg(d.id, m.uid);
+      };
     }
 
-    // MENU OPEN
-    div.addEventListener("click", (e) => {
+    // MENU TOGGLE
+    msg.onclick = (e) => {
       e.stopPropagation();
       document.querySelectorAll(".msgMenu").forEach(el => el.style.display = "none");
-      div.querySelector(".msgMenu").style.display = "flex";
-    });
+      msg.querySelector(".msgMenu").style.display = "flex";
+    };
 
+    chat.appendChild(msg);
     markSeen(d.id);
-    chat.appendChild(div);
   });
 });
 
@@ -341,6 +322,6 @@ document.getElementById("userToggleBtn").addEventListener("click", () => {
   document.getElementById("userPanel").classList.add("active");
 });
 
-window.closeUserList = function () {
+window.closeUserList = () => {
   document.getElementById("userPanel").classList.remove("active");
 };
