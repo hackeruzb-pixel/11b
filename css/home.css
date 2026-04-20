@@ -632,3 +632,16 @@ body {
 .offline{
   background:#9ca3af;
 }
+.msgMenu {
+  display: none;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.msgMenu button {
+  background: #222;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 6px;
+}
