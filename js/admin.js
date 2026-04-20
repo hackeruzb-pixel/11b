@@ -20,38 +20,20 @@ const db = getFirestore(app);
 /* PASSWORD */
 const PASSWORD = "231008xm";
 
-/* FINGERPRINT FAKE SCAN */
-window.scanFingerprint = function () {
-  const finger = document.querySelector(".fingerprint");
-
-  finger.style.boxShadow = "0 0 30px #00ff88";
-
-  setTimeout(() => {
-    alert("✅ Fingerprint verified");
-    loginSuccess();
-  }, 2000);
-};
-
-/* PASSWORD LOGIN */
 window.checkPass = function () {
   const pass = document.getElementById("adminPass").value;
 
   if (pass === PASSWORD) {
-    loginSuccess();
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("adminPanel").classList.remove("hidden");
   } else {
-    alert("❌ Access denied");
+    alert("❌ Wrong password");
   }
 };
 
-/* SUCCESS LOGIN */
-function loginSuccess() {
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("adminPanel").classList.remove("hidden");
-}
-
-/* BACK */
 window.goBack = function () {
   location.href = "home.html";
+};
 };
 
 /* ---------------- USERS ---------------- */
