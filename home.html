@@ -1,80 +1,75 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Home</title>
-<link rel="stylesheet" href="./css/home.css">
-</head>
-<body>
-
-<input type="checkbox" id="openSidebarMenu" class="openSidebarMenu">
-
-<!-- HEADER -->
-<div class="header">
-  <label for="openSidebarMenu" class="sidebarIconToggle">
-    <div class="spinner diagonal part-1"></div>
-    <div class="spinner horizontal"></div>
-    <div class="spinner diagonal part-2"></div>
-  </label>
-</div>
-
-<!-- SIDEBAR -->
-<div id="sidebarMenu">
-  <ul class="sidebarMenuInner">
-    <li>DJ <span>Menu</span></li>
-    <li><a href="#">Home</a></li>
-    <li><a href="./profile.html">Profile</a></li>
-    <li><a href="stoping.html">Music</a></li>
-    <li><a href="./premium.html">Premium</a></li>
-    <li><a href="./contact.html">Contact</a></li>
-    <li><a href="./settings.html">Settings</a></li>
-    <li><a href="./Admin.html">Admin</a></li>
-  </ul>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-
-<div class="chatBox">
-
-  <!-- HEADER -->
-  <div class="chatHeader">
-    <span>💬 Global Chat</span>
-    <button id="userToggleBtn">👥 UserList</button>
-  </div>
-
-  <!-- USER PANEL -->
-  <div id="userPanel" class="userPanel">
-    <div class="userPanelHeader">
-      <span>👥 Online Users</span>
-      <button onclick="closeUserList()">✖</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+    <link rel="stylesheet" href="./css/home.css" />
+  </head>
+  <body>
+    <input type="checkbox" id="openSidebarMenu" class="openSidebarMenu" />
+    <!-- HEADER -->
+    <div class="header">
+      <label for="openSidebarMenu" class="sidebarIconToggle">
+        <div class="spinner diagonal part-1"></div>
+        <div class="spinner horizontal"></div>
+        <div class="spinner diagonal part-2"></div>
+      </label>
     </div>
-    <div id="userList" class="userList"></div>
-  </div>
-
-  <!-- TYPING -->
-  <div id="typingBox" class="typing" style="display:none"></div>
-
-  <!-- REPLY (FAKAT BITTA) -->
-  <div id="replyBox" style="display:none">
-    <span id="replyText"></span>
-    <button onclick="cancelReply()">✖</button>
-  </div>
-
-  <!-- CHAT -->
-  <div id="chatList" class="chatList"></div>
-
-  <!-- INPUT -->
-  <div class="chatInput">
-    <input id="chatText" placeholder="Message...">
-    <button onclick="sendMsg()">Send</button>
-  </div>
-
-</div>
-
-</div>
-
-<script type="module" src="./js/home.js"></script>
-</body>
+    <!-- SIDEBAR -->
+    <div id="sidebarMenu">
+      <ul class="sidebarMenuInner">
+        <li>DJ <span>Menu</span></li>
+        <li><a href="#">Home</a></li>
+        <li><a href="./profile.html">Profile</a></li>
+        <li><a href="stoping.html">Music</a></li>
+        <li><a href="./premium.html">Premium</a></li>
+        <li><a href="./contact.html">Contact</a></li>
+        <li><a href="./settings.html">Settings</a></li>
+        <li><a href="./admin.html">Admin</a></li>
+      </ul>
+      <button onclick="goBack()">Chiqish</button>
+    </div>
+    <!-- MAIN -->
+    <div class="main">
+      <div class="chatBox">
+        <!-- HEADER -->
+        <div class="chatHeader">
+          <span>💬 Global Chat</span>
+          <button id="userToggleBtn">👥 UserList</button>
+        </div>
+        <!-- USER PANEL -->
+        <div id="userPanel" class="userPanel">
+          <div class="userPanelHeader">
+            <span>👥 Online Users</span>
+            <button onclick="closeUserList()">✖</button>
+          </div>
+          <div id="userList" class="userList"></div>
+        </div>
+        <!-- TYPING -->
+        <div id="banOverlay" class="banOverlay" style="display: none">
+          <div class="banCard">
+            <div class="banIcon">🚫</div>
+            <div class="banTitle">BANNED</div>
+            <div class="banText">You are banned from this chat</div>
+          </div>
+        </div>
+        <div id="typingBox" class="typing" style="display: none"></div>
+        <!-- REPLY (FAKAT BITTA) -->
+        <div id="replyBox" style="display: none">
+          <span id="replyText"></span>
+          <button onclick="cancelReply()">✖</button>
+        </div>
+        <!-- CHAT -->
+         
+        <div id="chatList" class="chatList"></div>
+        <!-- INPUT -->
+        <div class="chatInput">
+          <input id="chatText" placeholder="Message..." />
+          <button onclick="sendMsg()">Send</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="./js/home.js"></script>
+  </body>
 </html>

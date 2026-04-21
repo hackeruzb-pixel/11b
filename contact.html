@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contact PRO</title>
 
-<!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <style>
@@ -23,8 +22,31 @@ body{
   justify-content:center;
   align-items:center;
   height:100vh;
+  flex-direction:column;
 }
 
+/* ================= BACK BUTTON ================= */
+.backBtn{
+  position:fixed;
+  top:15px;
+  left:15px;
+  padding:8px 14px;
+  border:none;
+  border-radius:10px;
+  background:#00ffff;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+  z-index:999;
+}
+
+.backBtn:hover{
+  transform:scale(1.05);
+  background:#00cccc;
+}
+
+/* ================= CONTAINER ================= */
 .container{
   width:100%;
   max-width:450px;
@@ -82,6 +104,9 @@ button:hover{
 </head>
 <body>
 
+<!-- 🔙 BACK BUTTON -->
+<button style="width: auto;" class="backBtn" onclick="goBack()">⬅ Back</button>
+
 <div class="container">
   <h2>📩 Contact Me</h2>
 
@@ -96,6 +121,11 @@ button:hover{
 </div>
 
 <script>
+// 🔥 BACK FUNCTION
+function goBack(){
+  window.location.href = "home.html";
+}
+
 // 🔥 EMAILJS INIT
 (function(){
   emailjs.init("BjfR-xWClrji7-avv");
@@ -113,19 +143,12 @@ form.addEventListener("submit", function(e){
 
   statusText.innerHTML = "⏳ Yuborilmoqda...";
 
-  // 1️⃣ EMAILJS
   emailjs.send("service_330emza", "template_ud4xsy6", {
     name: name,
     email: email,
     message: message
-  })
-  .then(function(){
-    console.log("Email yuborildi");
-  }, function(error){
-    console.log("Email error:", error);
   });
 
-  // 2️⃣ TELEGRAM
   const botToken = "8615601516:AAFEatgSlEhJrLwPUVn0d3xV8aMqU9lDQ28";
   const chatId = "8615601516";
 
@@ -133,23 +156,17 @@ form.addEventListener("submit", function(e){
 
   fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
       text: text
     })
-  })
-  .then(res => res.json())
-  .then(data => console.log("Telegram yuborildi", data))
-  .catch(err => console.log("Telegram error", err));
+  });
 
-  // ✅ UI
   statusText.innerHTML = "✅ Xabar yuborildi!";
   form.reset();
 });
 </script>
 
 </body>
-</html> 
+</html>

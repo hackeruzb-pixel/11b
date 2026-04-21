@@ -16,7 +16,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
-  getAuth,
+  getAuth, signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -37,19 +37,44 @@ let userAvatar = "";
 let isAdmin = false;
 let replyTo = null;
 let typingTimer = null;
+function showBannedScreen() {
+  const chat = document.getElementById("chatList");
+  const input = document.getElementById("chatText");
+  const sendBtn = document.querySelector(".chatInput button");
 
-/* ---------------- AUTH ---------------- */
+  if (input) input.disabled = true;
+  if (sendBtn) sendBtn.disabled = true;
+
+  if (chat) {
+    chat.innerHTML = `
+      <div class="bannedScreen">
+        🚫 YOU ARE BANNED
+        <p>Admin tomonidan cheklangan hisob</p>
+      </div>
+    `;
+  }
+}
+/* ================= AUTH ================= */
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
 
   currentUser = user;
   userName = user.displayName || user.email.split("@")[0];
 
-  const snap = await getDoc(doc(db, "users", user.uid));
+  const userRef = doc(db, "users", user.uid);
+  const snap = await getDoc(userRef);
+
   if (snap.exists()) {
     const data = snap.data();
+
     userAvatar = data.avatar || "";
     isAdmin = data.role === "admin";
+
+    // 🔴 BAN CHECK (ENG TO‘G‘RI JOY)
+    if (data.banned === true) {
+      showBannedScreen();
+      return; // MUHIM
+    }
   }
 
   await setDoc(doc(db, "status", user.uid), {
@@ -60,21 +85,20 @@ onAuthStateChanged(auth, async (user) => {
   }, { merge: true });
 
   listenUsers();
-  listenTyping();
 });
 
-/* ---------------- SEND MESSAGE ---------------- */
+/* ================= SEND ================= */
 window.sendMsg = async () => {
   const input = document.getElementById("chatText");
   const text = input.value.trim();
 
   if (!text || !currentUser) return;
 
-  const snap = await getDoc(doc(db, "users", currentUser.uid));
-  const u = snap.data();
+  const uSnap = await getDoc(doc(db, "users", currentUser.uid));
+  const u = uSnap.data();
 
-  if (u?.banned) return alert("🚫 You are banned");
-  if (u?.muted) return alert("🔇 You are muted");
+  if (u?.banned) return alert("🚫 Banned");
+  if (u?.muted) return alert("🔇 Muted");
 
   await addDoc(collection(db, "messages"), {
     text,
@@ -92,17 +116,17 @@ window.sendMsg = async () => {
   setTyping(false);
 };
 
-/* ---------------- DELETE ---------------- */
+/* ================= DELETE ================= */
 window.deleteMsg = async (id, uid) => {
   if (uid !== currentUser.uid && !isAdmin) return;
   await deleteDoc(doc(db, "messages", id));
 };
 
-/* ---------------- EDIT ---------------- */
+/* ================= EDIT ================= */
 window.editMsg = async (id, uid, oldText) => {
   if (uid !== currentUser.uid && !isAdmin) return;
 
-  const newText = prompt("Edit message:", oldText);
+  const newText = prompt("Edit:", oldText);
   if (!newText) return;
 
   await updateDoc(doc(db, "messages", id), {
@@ -111,7 +135,7 @@ window.editMsg = async (id, uid, oldText) => {
   });
 };
 
-/* ---------------- ADMIN ---------------- */
+/* ================= ADMIN ================= */
 window.banUser = async (uid) => {
   if (!isAdmin) return;
   await setDoc(doc(db, "users", uid), { banned: true }, { merge: true });
@@ -120,16 +144,6 @@ window.banUser = async (uid) => {
 window.unbanUser = async (uid) => {
   if (!isAdmin) return;
   await setDoc(doc(db, "users", uid), { banned: false }, { merge: true });
-};
-
-window.muteUser = async (uid) => {
-  if (!isAdmin) return;
-  await setDoc(doc(db, "users", uid), { muted: true }, { merge: true });
-};
-
-window.makeAdmin = async (uid) => {
-  if (!isAdmin) return;
-  await setDoc(doc(db, "users", uid), { role: "admin" }, { merge: true });
 };
 
 window.clearChat = async () => {
@@ -143,77 +157,44 @@ window.clearChat = async () => {
   alert("Chat cleared");
 };
 
-/* ---------------- REPLY ---------------- */
+/* ================= REPLY ================= */
 window.replyMsg = (id, text, name) => {
   replyTo = { id, text, name };
 
   const box = document.getElementById("replyBox");
   const textBox = document.getElementById("replyText");
 
-  if (box && textBox) {
-    box.style.display = "flex";
-    textBox.innerHTML = `<b>${name}</b>: ${text}`;
-  }
+  box.style.display = "flex";
+  textBox.innerHTML = `<b>${name}</b>: ${text}`;
 };
 
 window.cancelReply = () => {
   replyTo = null;
-  const box = document.getElementById("replyBox");
-  if (box) box.style.display = "none";
+  document.getElementById("replyBox").style.display = "none";
 };
 
-/* ---------------- SEEN ---------------- */
-function markSeen(id) {
+/* ================= TYPING ================= */
+function setTyping(state) {
   if (!currentUser) return;
 
-  updateDoc(doc(db, "messages", id), {
-    seen: true
-  });
-}
-
-/* ---------------- TYPING ---------------- */
-const input = document.getElementById("chatText");
-
-input.addEventListener("input", () => {
-  if (!currentUser) return;
-
-  setTyping(true);
-
-  clearTimeout(typingTimer);
-  typingTimer = setTimeout(() => setTyping(false), 1000);
-});
-
-async function setTyping(state) {
-  if (!currentUser) return;
-
-  await setDoc(doc(db, "status", currentUser.uid), {
+  setDoc(doc(db, "status", currentUser.uid), {
     typing: state,
     online: true,
     name: userName
   }, { merge: true });
 }
 
-/* ---------------- LISTEN TYPING ---------------- */
-function listenTyping() {
-  onSnapshot(collection(db, "status"), (snap) => {
-    const box = document.getElementById("typingBox");
-    if (!box) return;
+const input = document.getElementById("chatText");
 
-    let users = [];
-
-    snap.forEach((d) => {
-      const u = d.data();
-      if (u.typing && d.id !== currentUser.uid) {
-        users.push(u.name || "User");
-      }
-    });
-
-    box.style.display = users.length ? "block" : "none";
-    box.innerText = users.join(", ") + (users.length ? " typing..." : "");
+if (input) {
+  input.addEventListener("input", () => {
+    setTyping(true);
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => setTyping(false), 1000);
   });
 }
 
-/* ---------------- USERS LIST ---------------- */
+/* ================= USERS ================= */
 function listenUsers() {
   onSnapshot(collection(db, "status"), (snap) => {
     const list = document.getElementById("userList");
@@ -231,7 +212,6 @@ function listenUsers() {
         <span class="dot ${u.online ? "online" : "offline"}"></span>
         <b>${u.name || "User"}</b>
         ${u.typing ? " ✍" : ""}
-        ${isAdmin ? `<button onclick="banUser('${d.id}')">🚫</button>` : ""}
       `;
 
       list.appendChild(div);
@@ -239,11 +219,13 @@ function listenUsers() {
   });
 }
 
-/* ---------------- CHAT ---------------- */
+/* ================= CHAT ================= */
 const q = query(collection(db, "messages"), orderBy("time", "asc"));
 
 onSnapshot(q, (snap) => {
   const chat = document.getElementById("chatList");
+  if (!chat) return;
+
   chat.innerHTML = "";
 
   snap.forEach((d) => {
@@ -251,77 +233,33 @@ onSnapshot(q, (snap) => {
 
     const msg = document.createElement("div");
     msg.className = "msg";
-    msg.id = d.id;
 
     if (m.uid === currentUser?.uid) msg.classList.add("me");
 
     msg.innerHTML = `
-      <div class="msgHeader">
-        <img src="${m.avatar || './img/download.png'}">
-        <b>${m.name}</b>
-      </div>
-
-      ${m.reply ? `<div class="replyBox">↩ ${m.reply.name}: ${m.reply.text}</div>` : ""}
-
-      <div class="msgText">${m.text} ${m.edited ? "<span>(edited)</span>" : ""}</div>
-
-      <div class="msgFooter">
-        ${m.seen ? "✔✔ seen" : ""}
-      </div>
-
-      <div class="msgMenu">
-        <button class="replyBtn">↩</button>
-        ${(m.uid === currentUser?.uid || isAdmin) ? `
-          <button class="editBtn">✏️</button>
-          <button class="deleteBtn">🗑</button>
-        ` : ""}
-      </div>
+      <b>${m.name}</b>
+      <div>${m.text}</div>
     `;
 
-    // EVENTS
-    msg.querySelector(".replyBtn").onclick = (e) => {
-      e.stopPropagation();
-      replyMsg(d.id, m.text, m.name);
-    };
-
-    const editBtn = msg.querySelector(".editBtn");
-    if (editBtn) {
-      editBtn.onclick = (e) => {
-        e.stopPropagation();
-        editMsg(d.id, m.uid, m.text);
-      };
-    }
-
-    const deleteBtn = msg.querySelector(".deleteBtn");
-    if (deleteBtn) {
-      deleteBtn.onclick = (e) => {
-        e.stopPropagation();
-        deleteMsg(d.id, m.uid);
-      };
-    }
-
-    // MENU TOGGLE
-    msg.onclick = (e) => {
-      e.stopPropagation();
-      document.querySelectorAll(".msgMenu").forEach(el => el.style.display = "none");
-      msg.querySelector(".msgMenu").style.display = "flex";
-    };
-
     chat.appendChild(msg);
-    markSeen(d.id);
   });
+
+  chat.scrollTop = chat.scrollHeight; // 🔥 AUTO SCROLL FIX
 });
 
-/* CLOSE MENU */
-document.addEventListener("click", () => {
-  document.querySelectorAll(".msgMenu").forEach(el => el.style.display = "none");
-});
-
-/* USER PANEL */
-document.getElementById("userToggleBtn").addEventListener("click", () => {
+/* ================= PANEL ================= */
+document.getElementById("userToggleBtn")?.addEventListener("click", () => {
   document.getElementById("userPanel").classList.add("active");
 });
 
 window.closeUserList = () => {
   document.getElementById("userPanel").classList.remove("active");
+};
+window.goBack = async function () {
+  try {
+    await signOut(auth); // 🔥 logout
+    window.location.href = "index.html"; // redirect
+  } catch (err) {
+    console.error("Logout error:", err);
+  }
 };

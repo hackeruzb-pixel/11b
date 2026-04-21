@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin</title>
+<link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+
+<!-- BACK -->
+<button class="backBtn" onclick="goBack()">⬅</button>
+
+<!-- LOGIN -->
+<div id="loginBox" class="loginBox">
+  <div class="card">
+    <h2>Admin Login</h2>
+    <input type="password" id="adminPass" placeholder="Password">
+    <button onclick="checkPass()">Login</button>
+    <p id="error"></p>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminPanel" class="hidden admin">
+
+  <!-- SIDEBAR -->
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOP -->
+    <div class="topbar">
+      <h2>Dashboard</h2>
+      <span id="stats"></span>
+    </div>
+
+    <!-- SEARCH BLOCK -->
+    <div class="searchBlock">
+
+      <input id="search" 
+        placeholder="🔍 Search users..."
+        oninput="searchUser()">
+
+      <!-- SMALL CLEAR BUTTON UNDER SEARCH -->
+      <button class="clearSmall" onclick="clearChat()">
+        🗑 Clear chat
+      </button>
+
+    </div>
+
+    <!-- USERS -->
+    <div id="usersTab"></div>
+  </div>
+
+</div>
+
+<script type="module" src="./js/admin.js"></script>
+</body>
+</html>
