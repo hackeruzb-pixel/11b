@@ -702,3 +702,63 @@ body {
   50%{transform:scale(1.03);}
   100%{transform:scale(1);}
 }
+#adminBtn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+
+  padding: 14px 22px;
+  border: none;
+  border-radius: 16px;
+
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 1px;
+
+  color: #111;
+  background: linear-gradient(135deg, #ffe600, #ffb300, #ffcc00);
+
+  cursor: pointer;
+
+  box-shadow:
+    0 0 12px rgba(255, 230, 0, 0.8),
+    0 0 30px rgba(255, 200, 0, 0.6),
+    0 0 60px rgba(255, 170, 0, 0.3);
+
+  z-index: 9999;
+
+  animation: adminFloat 2s ease-in-out infinite,
+             adminGlow 1.5s infinite alternate;
+
+  transition: 0.25s ease;
+}
+
+/* hover */
+#adminBtn:hover {
+  transform: scale(1.12) rotate(-1deg);
+  box-shadow:
+    0 0 18px rgba(255, 230, 0, 1),
+    0 0 40px rgba(255, 200, 0, 0.8);
+}
+
+/* click */
+#adminBtn:active {
+  transform: scale(0.95);
+}
+
+/* floating */
+@keyframes adminFloat {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+/* glow pulse */
+@keyframes adminGlow {
+  0% {
+    filter: brightness(1);
+  }
+  100% {
+    filter: brightness(1.3);
+  }
+}

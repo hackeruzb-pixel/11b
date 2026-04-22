@@ -6,7 +6,7 @@ import {
   doc,
   setDoc,
   deleteDoc,
-  getDocs
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ================= FIREBASE ================= */
@@ -20,12 +20,14 @@ const db = getFirestore(app);
 
 /* ================= CONFIG ================= */
 const PASSWORD = "231008xm";
+
+// 🔥 OWNER UID (shu yerga real UID qo‘yasan!)
 const OWNER_ID = "OWNER_UID_HERE";
 
 let users = [];
 
-/* ================= UI ERROR MODAL ================= */
-function showNoAccess(text = "Sizda admin huquqi yo‘q!") {
+/* ================= ERROR MODAL ================= */
+function showNoAccess(text) {
   const modal = document.createElement("div");
   modal.className = "noAccessModal";
 
@@ -40,12 +42,10 @@ function showNoAccess(text = "Sizda admin huquqi yo‘q!") {
 
   document.body.appendChild(modal);
 
-  // smooth enter
   setTimeout(() => modal.classList.add("show"), 10);
 
   document.getElementById("closeBtn").onclick = () => {
     modal.classList.remove("show");
-
     setTimeout(() => modal.remove(), 300);
   };
 }
@@ -53,59 +53,46 @@ function showNoAccess(text = "Sizda admin huquqi yo‘q!") {
 /* ================= SHAKE ================= */
 function shakeLogin() {
   const box = document.getElementById("loginBox");
-
   box.classList.add("shake");
-
-  setTimeout(() => {
-    box.classList.remove("shake");
-  }, 600);
+  setTimeout(() => box.classList.remove("shake"), 600);
 }
+
 /* ================= LOGIN ================= */
 window.checkPass = async function () {
   const pass = document.getElementById("adminPass").value;
-  const error = document.getElementById("error");
 
-  error.innerText = "";
-
-  // ❌ wrong password ham ENDI admin huquq yo‘q deb chiqadi
   if (pass !== PASSWORD) {
     shakeLogin();
-    showNoAccess("Parol noto‘g‘ri yoki admin huquqi yo‘q!");
+    showNoAccess("❌ Parol noto‘g‘ri");
     return;
   }
 
   const snap = await getDocs(collection(db, "users"));
 
-  let allowed = false;
+  let isAdmin = false;
 
   snap.forEach((d) => {
     const u = d.data();
+
+    // 🔥 OWNER yoki ADMIN tekshiradi
     if (u.role === "admin" || u.role === "owner") {
-      allowed = true;
+      isAdmin = true;
     }
   });
 
-  if (!allowed) {
+  if (!isAdmin) {
     shakeLogin();
-    showNoAccess("Sizda adminlik huquqi mavjud emas!");
+    showNoAccess("❌ Sizda admin huquqi yo‘q!");
     return;
   }
 
-  document.getElementById("loginBox").classList.add("hideAnim");
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("adminPanel").classList.remove("hidden");
 
-  setTimeout(() => {
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("adminPanel").classList.remove("hidden");
-    loadUsers();
-  }, 300);
+  loadUsers();
 };
 
-/* ================= BACK ================= */
-window.goBack = function () {
-  window.location.href = "home.html";
-};
-
-/* ================= USERS ================= */
+/* ================= USERS LOAD ================= */
 function loadUsers() {
   const list = document.getElementById("usersTab");
 
@@ -119,30 +106,30 @@ function loadUsers() {
       users.push({ id: d.id, ...d.data() });
     });
 
-    users.sort((a, b) => {
-      if (a.role === "owner") return -1;
-      if (b.role === "owner") return 1;
-      return 0;
-    });
-
     users.forEach((u) => renderUser(u.id, u));
   });
 }
 
-/* ================= RENDER ================= */
+/* ================= RENDER USER ================= */
 function renderUser(id, u) {
   const list = document.getElementById("usersTab");
 
-  const isOwner = u.role === "owner" || id === OWNER_ID;
+  const isOwner = id === OWNER_ID || u.role === "owner";
+  const isAdmin = u.role === "admin";
 
   const div = document.createElement("div");
   div.className = "user";
 
+  // 🔥 PIN CLASS
+  if (isOwner) div.classList.add("ownerPin");
+  else if (isAdmin) div.classList.add("adminPin");
+
   div.innerHTML = `
     <div class="userCard">
+
       <b>
         ${u.name || "User"}
-        ${isOwner ? " 👑 OWNER" : ""}
+        ${isOwner ? " 👑 OWNER" : isAdmin ? " 🔥 ADMIN" : ""}
       </b>
 
       <div>Role: ${u.role || "user"}</div>
@@ -162,10 +149,18 @@ function renderUser(id, u) {
             </div>
           `
       }
+
     </div>
   `;
 
-  list.appendChild(div);
+  // 🔥 OWNER ALWAYS TOP
+  if (isOwner) {
+    list.prepend(div);
+  } else if (isAdmin) {
+    list.prepend(div);
+  } else {
+    list.appendChild(div);
+  }
 }
 
 /* ================= SEARCH ================= */
@@ -182,7 +177,7 @@ window.searchUser = function () {
 
 /* ================= ROLE ================= */
 window.toggleRole = (id, role) => {
-  if (id === OWNER_ID || role === "owner") return;
+  if (id === OWNER_ID) return;
 
   setDoc(doc(db, "users", id), {
     role: role === "admin" ? "user" : "admin",
@@ -208,33 +203,16 @@ window.unbanUser = (id) => {
 
 /* ================= CLEAR CHAT ================= */
 window.clearChat = async function () {
-  const modal = document.createElement("div");
-  modal.className = "confirmModal";
+  const snap = await getDocs(collection(db, "messages"));
 
-  modal.innerHTML = `
-    <div class="confirmBox animatePop">
-      <h3>🗑 Chatni o‘chirasizmi?</h3>
-      <p>Barcha xabarlar yo‘qoladi!</p>
+  snap.forEach(async (d) => {
+    await deleteDoc(doc(db, "messages", d.id));
+  });
 
-      <div class="confirmBtns">
-        <button id="yesBtn">Ha</button>
-        <button id="noBtn">Yo‘q</button>
-      </div>
-    </div>
-  `;
+  alert("🧹 Chat tozalandi");
+};
 
-  document.body.appendChild(modal);
-
-  document.getElementById("noBtn").onclick = () => modal.remove();
-
-  document.getElementById("yesBtn").onclick = async () => {
-    const snap = await getDocs(collection(db, "messages"));
-
-    snap.forEach(async (d) => {
-      await deleteDoc(doc(db, "messages", d.id));
-    });
-
-    modal.remove();
-    alert("🧹 Chat tozalandi");
-  };
+/* ================= BACK ================= */
+window.goBack = function () {
+  window.location.href = "home.html";
 };

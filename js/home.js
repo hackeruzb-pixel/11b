@@ -16,7 +16,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
-  getAuth, signOut,
+  getAuth,
+  signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -30,13 +31,19 @@ const app = initializeApp({
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+/* 🔥 OWNER UID (SHUNI O‘ZGARTIR) */
+const OWNER_UID = "YOUR_OWNER_UID_HERE";
+
 /* STATE */
 let currentUser = null;
 let userName = "";
 let userAvatar = "";
 let isAdmin = false;
+let isOwner = false;
 let replyTo = null;
 let typingTimer = null;
+
+/* ================= BAN SCREEN ================= */
 function showBannedScreen() {
   const chat = document.getElementById("chatList");
   const input = document.getElementById("chatText");
@@ -54,6 +61,7 @@ function showBannedScreen() {
     `;
   }
 }
+
 /* ================= AUTH ================= */
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
@@ -64,18 +72,21 @@ onAuthStateChanged(auth, async (user) => {
   const userRef = doc(db, "users", user.uid);
   const snap = await getDoc(userRef);
 
-  if (snap.exists()) {
-    const data = snap.data();
+  let data = {};
+  if (snap.exists()) data = snap.data();
 
-    userAvatar = data.avatar || "";
-    isAdmin = data.role === "admin";
+  userAvatar = data.avatar || "";
 
-    // 🔴 BAN CHECK (ENG TO‘G‘RI JOY)
-    if (data.banned === true) {
-      showBannedScreen();
-      return; // MUHIM
-    }
-  }
+const OWNER_UID = "Fcrn3T0l4jWBJy4JHVGnjg0jDCw2";
+
+isOwner = user.uid === OWNER_UID;
+isAdmin = data.role === "admin" || isOwner;
+
+/* BAN CHECK */
+if (data.banned === true) {
+  showBannedScreen();
+  return;
+}
 
   await setDoc(doc(db, "status", user.uid), {
     online: true,
@@ -85,6 +96,7 @@ onAuthStateChanged(auth, async (user) => {
   }, { merge: true });
 
   listenUsers();
+  setTimeout(updateAdminButton, 300);
 });
 
 /* ================= SEND ================= */
@@ -94,12 +106,6 @@ window.sendMsg = async () => {
 
   if (!text || !currentUser) return;
 
-  const uSnap = await getDoc(doc(db, "users", currentUser.uid));
-  const u = uSnap.data();
-
-  if (u?.banned) return alert("🚫 Banned");
-  if (u?.muted) return alert("🔇 Muted");
-
   await addDoc(collection(db, "messages"), {
     text,
     uid: currentUser.uid,
@@ -107,24 +113,22 @@ window.sendMsg = async () => {
     avatar: userAvatar,
     time: serverTimestamp(),
     reply: replyTo,
-    seen: false,
     edited: false
   });
 
   input.value = "";
   cancelReply();
-  setTyping(false);
 };
 
 /* ================= DELETE ================= */
 window.deleteMsg = async (id, uid) => {
-  if (uid !== currentUser.uid && !isAdmin) return;
+  if (uid !== currentUser.uid && !isAdmin && !isOwner) return;
   await deleteDoc(doc(db, "messages", id));
 };
 
 /* ================= EDIT ================= */
 window.editMsg = async (id, uid, oldText) => {
-  if (uid !== currentUser.uid && !isAdmin) return;
+  if (uid !== currentUser.uid && !isAdmin && !isOwner) return;
 
   const newText = prompt("Edit:", oldText);
   if (!newText) return;
@@ -137,17 +141,17 @@ window.editMsg = async (id, uid, oldText) => {
 
 /* ================= ADMIN ================= */
 window.banUser = async (uid) => {
-  if (!isAdmin) return;
+  if (!isAdmin && !isOwner) return;
   await setDoc(doc(db, "users", uid), { banned: true }, { merge: true });
 };
 
 window.unbanUser = async (uid) => {
-  if (!isAdmin) return;
+  if (!isAdmin && !isOwner) return;
   await setDoc(doc(db, "users", uid), { banned: false }, { merge: true });
 };
 
 window.clearChat = async () => {
-  if (!isAdmin) return;
+  if (!isAdmin && !isOwner) return;
 
   const snap = await getDocs(collection(db, "messages"));
   snap.forEach(async (d) => {
@@ -160,39 +164,7 @@ window.clearChat = async () => {
 /* ================= REPLY ================= */
 window.replyMsg = (id, text, name) => {
   replyTo = { id, text, name };
-
-  const box = document.getElementById("replyBox");
-  const textBox = document.getElementById("replyText");
-
-  box.style.display = "flex";
-  textBox.innerHTML = `<b>${name}</b>: ${text}`;
 };
-
-window.cancelReply = () => {
-  replyTo = null;
-  document.getElementById("replyBox").style.display = "none";
-};
-
-/* ================= TYPING ================= */
-function setTyping(state) {
-  if (!currentUser) return;
-
-  setDoc(doc(db, "status", currentUser.uid), {
-    typing: state,
-    online: true,
-    name: userName
-  }, { merge: true });
-}
-
-const input = document.getElementById("chatText");
-
-if (input) {
-  input.addEventListener("input", () => {
-    setTyping(true);
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => setTyping(false), 1000);
-  });
-}
 
 /* ================= USERS ================= */
 function listenUsers() {
@@ -209,7 +181,6 @@ function listenUsers() {
       div.className = "user";
 
       div.innerHTML = `
-        <span class="dot ${u.online ? "online" : "offline"}"></span>
         <b>${u.name || "User"}</b>
         ${u.typing ? " ✍" : ""}
       `;
@@ -239,27 +210,40 @@ onSnapshot(q, (snap) => {
     msg.innerHTML = `
       <b>${m.name}</b>
       <div>${m.text}</div>
+
+      ${
+        (isAdmin || isOwner)
+          ? `<button onclick="deleteMsg('${d.id}','${m.uid}')">🗑</button>`
+          : ""
+      }
     `;
 
     chat.appendChild(msg);
   });
 
-  chat.scrollTop = chat.scrollHeight; // 🔥 AUTO SCROLL FIX
+  chat.scrollTop = chat.scrollHeight;
 });
 
-/* ================= PANEL ================= */
-document.getElementById("userToggleBtn")?.addEventListener("click", () => {
-  document.getElementById("userPanel").classList.add("active");
-});
+/* ================= ADMIN BUTTON FIX ================= */
+function updateAdminButton() {
+  const btn = document.getElementById("adminBtn");
 
-window.closeUserList = () => {
-  document.getElementById("userPanel").classList.remove("active");
-};
-window.goBack = async function () {
-  try {
-    await signOut(auth); // 🔥 logout
-    window.location.href = "index.html"; // redirect
-  } catch (err) {
-    console.error("Logout error:", err);
+  if (!btn) return;
+
+  if (isAdmin || isOwner) {
+    btn.style.display = "block";
+  } else {
+    btn.style.display = "none";
   }
+}
+
+/* ================= NAV ================= */
+window.openAdmin = () => {
+  if (!isAdmin && !isOwner) return;
+  window.location.href = "admin.html";
+};
+
+window.goBack = async function () {
+  await signOut(auth);
+  window.location.href = "index.html";
 };
