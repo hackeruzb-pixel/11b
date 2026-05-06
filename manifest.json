@@ -1,6 +1,6 @@
-{
-  "name": "Slide PRO",
-  "short_name": "Slides",
+
+  "name": "11b",
+  "short_name": "11b",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#0f172a",
@@ -10,12 +10,12 @@
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "img/37b577b6301068f0dd01b3a6103ccccb.jpg "
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "img/37b577b6301068f0dd01b3a6103ccccb.jpg"
     }
   ]
 }
