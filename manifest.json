@@ -1,7 +1,7 @@
-
-  "name": "11b",
+{
+  "name": "11b App",
   "short_name": "11b",
-  "start_url": ".",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
@@ -10,12 +10,12 @@
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "img/37b577b6301068f0dd01b3a6103ccccb.jpg "
+      "type": "image/png"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "img/37b577b6301068f0dd01b3a6103ccccb.jpg"
+      "type": "image/png"
     }
   ]
 }
